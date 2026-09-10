@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { MessageCircle, Settings, Plus, Menu, Send } from 'lucide-react'
+import { MessageCircle, Settings, Plus, Menu, Send, Palette } from 'lucide-react'
 import Sidebar from './components/Sidebar'
 import ChatPanel from './components/ChatPanel'
 import ProjectPreview from './components/ProjectPreview'
+import DesignEasel from './components/DesignEasel'
+import ModelGym from './components/ModelGym'
 import './App.css'
 
-type AppMode = 'chat' | 'project'
+type AppMode = 'chat' | 'project' | 'design' | 'gym'
 type ProjectMode = 'split' | 'pipeline' | 'eden'
 
 function App() {
@@ -47,7 +49,6 @@ function App() {
       }
       setMessages([...messages, newMessage])
       setInput('')
-      
       // Simulate agent response
       setTimeout(() => {
         setMessages(prev => [...prev, {
@@ -69,7 +70,6 @@ function App() {
         onNewSession={handleNewSession}
         onDeleteSession={handleDeleteSession}
       />
-      
       <main className="flex-1 flex flex-col">
         {/* Top Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900">
@@ -104,6 +104,26 @@ function App() {
               >
                 🎯 Project
               </button>
+              <button
+                onClick={() => setAppMode('design')}
+                className={`px-4 py-1 rounded-lg font-medium transition ${
+                  appMode === 'design'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                🎨 Design
+              </button>
+              <button
+                onClick={() => setAppMode('gym')}
+                className={`px-4 py-1 rounded-lg font-medium transition ${
+                  appMode === 'gym'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                🏋️ GYM
+              </button>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -121,11 +141,19 @@ function App() {
             input={input}
             onInputChange={setInput}
           />
-        ) : (
+        ) : appMode === 'project' ? (
           <ProjectPreview
             mode={projectMode}
             onModeChange={setProjectMode}
           />
+        ) : appMode === 'design' ? (
+          <div className="flex-1 p-4 overflow-auto">
+            <DesignEasel />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-auto">
+            <ModelGym />
+          </div>
         )}
       </main>
     </div>
