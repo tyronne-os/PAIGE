@@ -581,3 +581,73 @@ def get_memory_report():
     report = memory_sys.generate_memory_report(project_id)
     
     return jsonify(report)
+
+# ============ Voice Model Switcher APIs ============
+
+@app.route('/api/paige/models/voice', methods=['GET'])
+def list_voice_models():
+    """List all available voice models"""
+    from trending_voice_models import get_trending_voice_models
+    
+    manager = get_trending_voice_models()
+    models = manager.get_all_models()
+    
+    return jsonify({'models': models})
+
+@app.route('/api/paige/models/voice/active', methods=['GET'])
+def get_active_voice_model():
+    """Get currently active voice model"""
+    from trending_voice_models import get_trending_voice_models
+    
+    manager = get_trending_voice_models()
+    active = manager.get_active_model()
+    
+    return jsonify(active)
+
+@app.route('/api/paige/models/voice/switch', methods=['POST'])
+def switch_voice_model():
+    """Switch to a different voice model"""
+    from trending_voice_models import get_trending_voice_models
+    
+    data = request.get_json()
+    model_id = data.get('modelId')
+    
+    if not model_id:
+        return jsonify({'error': 'modelId required'}), 400
+    
+    manager = get_trending_voice_models()
+    result = manager.switch_model(model_id)
+    
+    return jsonify(result)
+
+@app.route('/api/paige/models/voice/by-speed', methods=['GET'])
+def get_models_by_speed():
+    """Get voice models sorted by speed"""
+    from trending_voice_models import get_trending_voice_models
+    
+    manager = get_trending_voice_models()
+    models = manager.get_models_by_speed()
+    
+    return jsonify({'models': models})
+
+@app.route('/api/paige/models/voice/by-quality', methods=['GET'])
+def get_models_by_quality():
+    """Get voice models sorted by quality"""
+    from trending_voice_models import get_trending_voice_models
+    
+    manager = get_trending_voice_models()
+    models = manager.get_models_by_quality()
+    
+    return jsonify({'models': models})
+
+@app.route('/api/paige/models/voice/by-language', methods=['GET'])
+def get_models_by_language():
+    """Get voice models by language"""
+    from trending_voice_models import get_trending_voice_models
+    
+    language = request.args.get('language', 'en')
+    
+    manager = get_trending_voice_models()
+    models = manager.get_models_by_language(language)
+    
+    return jsonify({'language': language, 'models': models})

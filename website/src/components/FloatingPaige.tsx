@@ -5,6 +5,7 @@ interface PaigSettings {
   customInstructions: string;
   selectedVoice: string;
   voiceClone: string | null;
+  selectedVoiceModel: string;
   eqSettings: {
     bass: number;
     mid: number;
@@ -13,6 +14,19 @@ interface PaigSettings {
   };
   screenVisionEnabled: boolean;
   autoAnalyzeScreens: boolean;
+}
+
+interface VoiceModel {
+  name: string;
+  model_id: string;
+  description: string;
+  provider: string;
+  parameters: string;
+  latency_ms: number;
+  quality: string;
+  languages: string[];
+  free_tier: boolean;
+  hf_url: string;
 }
 
 interface ScreenAnalysis {
@@ -36,11 +50,14 @@ const FloatingPaige: React.FC = () => {
   });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [voiceModels, setVoiceModels] = useState<VoiceModel[]>([]);
+  const [showModelSelector, setShowModelSelector] = useState(false);
   
   const [settings, setSettings] = useState<PaigSettings>({
     customInstructions: 'Help me build amazing 3D digital humans with Tokkio.',
     selectedVoice: 'default-female',
     voiceClone: null,
+    selectedVoiceModel: 'nvidia/nemotron-4-340b-instruct',
     eqSettings: { bass: 0, mid: 0, treble: 0, volume: 70 },
     screenVisionEnabled: true,
     autoAnalyzeScreens: true
@@ -69,6 +86,9 @@ const FloatingPaige: React.FC = () => {
         console.error('Failed to load settings:', e);
       }
     }
+    
+    // Load voice models
+    fetchVoiceModels();
   }, []);
 
   useEffect(() => {
@@ -470,3 +490,35 @@ export default FloatingPaige;
 
 /* Add to end of component JSX before closing div */
 // Add orb styles below the existing content
+
+  // Fetch voice models from backend
+  const fetchVoiceModels = async () => {
+    try {
+      const res = await fetch('/api/paige/models/voice');
+      const data = await res.json();
+      setVoiceModels(data.models);
+    } catch (e) {
+      console.error('Failed to load voice models:', e);
+    }
+  };
+
+  const switchVoiceModel = async (modelId: string) => {
+    try {
+      const res = await fetch('/api/paige/models/voice/switch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modelId })
+      });
+
+      const data = await res.json();
+      
+      if (data.success) {
+        setSettings(prev => ({
+          ...prev,
+          selectedVoiceModel: modelId
+        }));
+      }
+    } catch (e) {
+      console.error('Failed to switch model:', e);
+    }
+  };
