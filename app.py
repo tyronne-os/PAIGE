@@ -374,3 +374,109 @@ if __name__ == '__main__':
     # Development: use Flask dev server
     debug = os.getenv('FLASK_ENV') == 'development'
     app.run(host='0.0.0.0', port=8002, debug=debug, use_reloader=False)
+
+# ============ Screen Vision APIs ============
+
+@app.route('/api/paige/analyze-screen', methods=['POST'])
+def analyze_screen():
+    """Analyze screenshot with vision model"""
+    from screen_vision_analyzer import get_screen_vision_analyzer
+    import asyncio
+    
+    data = request.get_json()
+    image_data = data.get('imageData', '')
+    instructions = data.get('customInstructions', '')
+    
+    if not image_data:
+        return jsonify({'error': 'No image data'}), 400
+    
+    try:
+        analyzer = get_screen_vision_analyzer()
+        analysis = asyncio.run(analyzer.analyze_screen(image_data, instructions))
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============ Voice Cloning APIs ============
+
+@app.route('/api/paige/clone-voice', methods=['POST'])
+def clone_voice():
+    """Clone voice from audio sample"""
+    from voice_cloner import get_voice_cloner
+    import asyncio
+    
+    if 'audio' not in request.files:
+        return jsonify({'error': 'No audio file'}), 400
+    
+    audio_file = request.files['audio']
+    voice_name = request.form.get('voiceName', 'cloned-voice')
+    
+    try:
+        # Save temporary file
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
+            audio_file.save(tmp.name)
+            temp_path = tmp.name
+        
+        # Clone voice
+        cloner = get_voice_cloner()
+        voice_info = asyncio.run(cloner.clone_voice(temp_path, voice_name))
+        
+        # Clean up
+        import os
+        os.remove(temp_path)
+        
+        if 'error' in voice_info:
+            return jsonify(voice_info), 400
+        
+        return jsonify(voice_info)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/paige/voices', methods=['GET'])
+def list_cloned_voices():
+    """List cloned voices"""
+    from voice_cloner import get_voice_cloner
+    
+    cloner = get_voice_cloner()
+    voices = cloner.get_cloned_voices()
+    return jsonify({'voices': voices})
+
+@app.route('/api/paige/voice/<voice_id>', methods=['DELETE'])
+def delete_voice(voice_id):
+    """Delete a cloned voice"""
+    from voice_cloner import get_voice_cloner
+    
+    cloner = get_voice_cloner()
+    success = cloner.delete_voice(voice_id)
+    
+    return jsonify({'success': success})
+
+@app.route('/api/paige/synthesize', methods=['POST'])
+def synthesize_with_voice():
+    """Synthesize speech with cloned voice"""
+    from voice_cloner import get_voice_cloner
+    import asyncio
+    
+    data = request.get_json()
+    text = data.get('text', '')
+    voice_id = data.get('voiceId', '')
+    language = data.get('language', 'en')
+    
+    if not text or not voice_id:
+        return jsonify({'error': 'Missing text or voiceId'}), 400
+    
+    try:
+        cloner = get_voice_cloner()
+        audio_bytes = asyncio.run(cloner.synthesize_with_cloned_voice(text, voice_id, language))
+        
+        if not audio_bytes:
+            return jsonify({'error': 'Failed to synthesize'}), 500
+        
+        import base64
+        return jsonify({
+            'audio': base64.b64encode(audio_bytes).decode(),
+            'format': 'wav'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
