@@ -651,3 +651,60 @@ def get_models_by_language():
     models = manager.get_models_by_language(language)
     
     return jsonify({'language': language, 'models': models})
+
+# ============ Model GYM APIs ============
+
+@app.route('/api/paige/gym/projects', methods=['GET'])
+def get_gym_projects():
+    """Get all model gym projects"""
+    from model_gym_agent import get_model_gym_agent
+    
+    agent = get_model_gym_agent()
+    projects = agent.get_projects()
+    
+    return jsonify({'projects': projects})
+
+@app.route('/api/paige/gym/project', methods=['POST'])
+def create_gym_project():
+    """Create new model gym project"""
+    from model_gym_agent import get_model_gym_agent
+    
+    data = request.get_json()
+    name = data.get('name')
+    base_model = data.get('baseModel')
+    description = data.get('description')
+    
+    if not name or not base_model:
+        return jsonify({'error': 'name and baseModel required'}), 400
+    
+    agent = get_model_gym_agent()
+    project = agent.create_project(name, base_model, description)
+    
+    return jsonify(project)
+
+@app.route('/api/paige/gym/project/<project_id>', methods=['GET'])
+def get_gym_project(project_id):
+    """Get specific gym project"""
+    from model_gym_agent import get_model_gym_agent
+    
+    agent = get_model_gym_agent()
+    project = agent.get_project(project_id)
+    
+    if not project:
+        return jsonify({'error': 'Project not found'}), 404
+    
+    return jsonify(project)
+
+@app.route('/api/paige/gym/project/<project_id>/task', methods=['POST'])
+def plan_gym_task(project_id):
+    """Plan optimization task"""
+    from model_gym_agent import get_model_gym_agent
+    
+    data = request.get_json()
+    opt_type = data.get('type')
+    config = data.get('config', {})
+    
+    agent = get_model_gym_agent()
+    task = agent.plan_task(project_id, opt_type, config)
+    
+    return jsonify(task)
