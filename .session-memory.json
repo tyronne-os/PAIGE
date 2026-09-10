@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "workspace": "PAIGE",
+  "persona": "PAIGE",
+  "createdAt": "2026-09-10T14:35:00Z",
+  "sessions": [],
+  "projects": [],
+  "environment": {
+    "pythonVersion": "3.12",
+    "nodeVersion": "latest",
+    "uvVersion": "latest",
+    "tools": {
+      "git": "latest",
+      "gh": "latest",
+      "huggingface-cli": "latest"
+    }
+  },
+  "storage": {
+    "github": {
+      "lastSync": null,
+      "status": "pending"
+    },
+    "huggingface": {
+      "datasets": "tyronne-os/paige-projects",
+      "sessions": "tyronne-os/paige-sessions",
+      "lastSync": null,
+      "status": "pending"
+    }
+  },
+  "credentials": {
+    "github": {
+      "status": "verified",
+      "username": "tyronne-os",
+      "lastVerified": "2026-09-10T14:35:00Z"
+    },
+    "huggingface": {
+      "status": "pending",
+      "username": null,
+      "lastVerified": null
+    }
+  },
+  "metadata": {
+    "vaultConnected": true,
+    "gpuStatus": "manual-control",
+    "securityLevel": "standard",
+    "lastUpdated": "2026-09-10T14:35:00Z"
+  }
+}

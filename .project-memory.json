@@ -1,0 +1,42 @@
+{
+  "project": {
+    "name": "PAIGE",
+    "type": "Persona AI Agent Workspace",
+    "baseProject": "LLYACrew",
+    "description": "PAIGE - Personality-driven AI persona extracted from connie-crane",
+    "createdAt": "2026-09-10T14:35:00Z",
+    "owner": "tyronne-os",
+    "email": "tjlsudadverified@gmail.com"
+  },
+  "persona": {
+    "name": "PAIGE",
+    "role": "Persona AI Agent",
+    "traits": ["analytical", "professional", "supportive"],
+    "origin": "connie-crane/paige_agent.py",
+    "knowledgeBase": "paige_knowledge_base.md",
+    "voiceOrb": "paige_voice_orb.js"
+  },
+  "storage": {
+    "github": {
+      "repo": "https://github.com/tyronne-os/PAIGE",
+      "branch": "main",
+      "sync": "bidirectional"
+    },
+    "huggingface": {
+      "username": "tyronne-os",
+      "storage": "1TB-5TB Pro membership",
+      "dataset_repo": "tyronne-os/paige-projects",
+      "session_repo": "tyronne-os/paige-sessions",
+      "autosync": true,
+      "frequency": "on-change"
+    }
+  },
+  "projects": [],
+  "sessions": [],
+  "metadata": {
+    "lastSync": "2026-09-10T14:35:00Z",
+    "vaultStatus": "connected",
+    "gpuStatus": "manual-control",
+    "securityLevel": "standard"
+  }
+}
