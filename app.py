@@ -480,3 +480,104 @@ def synthesize_with_voice():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# ============ NVIDIA Voice Agent APIs ============
+
+@app.route('/api/paige/voice/process', methods=['POST'])
+def process_voice_with_memory():
+    """Process voice input with NVIDIA agent and memory"""
+    from nvidia_voice_agent import get_nvidia_voice_agent
+    from advanced_memory_system import get_advanced_memory_system
+    import asyncio
+    
+    data = request.get_json()
+    user_input = data.get('message', '')
+    project_id = data.get('projectId')
+    
+    if not user_input:
+        return jsonify({'error': 'No message'}), 400
+    
+    try:
+        agent = get_nvidia_voice_agent()
+        memory_sys = get_advanced_memory_system()
+        
+        # Generate response with memory
+        response = asyncio.run(agent.generate_response_with_memory(user_input, project_id))
+        
+        # Store in advanced memory
+        if not response.get('error'):
+            memory_sys.add_interaction(
+                project_id=project_id,
+                session_id=agent.current_session_id,
+                interaction={
+                    "user_input": user_input,
+                    "response": response.get('response'),
+                    "content": user_input + " " + response.get('response')
+                }
+            )
+        
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/paige/memory/project/<project_id>', methods=['GET'])
+def get_project_memory_graph(project_id):
+    """Get memory graph for project"""
+    from nvidia_voice_agent import get_nvidia_voice_agent
+    
+    agent = get_nvidia_voice_agent()
+    graph = agent.get_project_memory_graph(project_id)
+    
+    return jsonify(graph)
+
+@app.route('/api/paige/memory/cross-project-search', methods=['POST'])
+def search_cross_project_memory():
+    """Search memories across all projects"""
+    from advanced_memory_system import get_advanced_memory_system
+    
+    data = request.get_json()
+    query = data.get('query', '')
+    project_id = data.get('projectId')
+    
+    memory_sys = get_advanced_memory_system()
+    results = memory_sys.retrieve_cross_project_context(query, project_id)
+    
+    return jsonify({'results': results})
+
+@app.route('/api/paige/memory/session/start', methods=['POST'])
+def start_memory_session():
+    """Start new session with memory marker"""
+    from nvidia_voice_agent import get_nvidia_voice_agent
+    
+    data = request.get_json()
+    project_id = data.get('projectId')
+    
+    agent = get_nvidia_voice_agent()
+    session = agent.start_new_session(project_id)
+    
+    return jsonify(session)
+
+@app.route('/api/paige/memory/export-to-hf', methods=['POST'])
+def export_memory_to_hf():
+    """Export memory to HuggingFace"""
+    from advanced_memory_system import get_advanced_memory_system
+    
+    data = request.get_json()
+    project_id = data.get('projectId')
+    
+    memory_sys = get_advanced_memory_system()
+    result = memory_sys.export_project_memory_to_hf(project_id)
+    
+    return jsonify(result)
+
+@app.route('/api/paige/memory/report', methods=['GET'])
+def get_memory_report():
+    """Get memory usage report"""
+    from advanced_memory_system import get_advanced_memory_system
+    
+    project_id = request.args.get('projectId')
+    
+    memory_sys = get_advanced_memory_system()
+    report = memory_sys.generate_memory_report(project_id)
+    
+    return jsonify(report)
