@@ -1,0 +1,26 @@
+PAIGE Complete Environment
+════════════════════════════════════════════════════════════════
+
+Services:
+  📍 PAIGE Service (port 8002)
+     - Clean kiro_crew backend
+     - Serves CRANE IDE
+     - Full computer use access
+
+  🎨 PAIGE Lab Gallery (port 7860)
+     - Gradio backend (HF Spaces ready)
+     - Model gallery interface
+     - Compression tools router
+     - Storage management
+
+  ⚛️  PAIGE Lab Frontend (port 3000)
+     - React dashboard
+     - Build & test models
+     - Compression pipeline
+     - HF upload manager
+
+Desktop Entry: PAIGE Lab
+  - Launches all three services
+  - Auto-opens browser windows
+  - Full computer use enabled
+  - Zero cloud costs (HF free tier optional)
