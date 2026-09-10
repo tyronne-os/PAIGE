@@ -296,3 +296,81 @@ if __name__ == '__main__':
     ╚════════════════════════════════════════════════════╝
     """)
     app.run(host='0.0.0.0', port=8002, debug=False)
+
+# ============ Voice Agent APIs ============
+
+@app.route('/api/voice/chat', methods=['POST'])
+def voice_chat():
+    """Handle voice/text chat with spec generation and agent orchestration"""
+    from voice_agent_controller import get_voice_agent_controller
+    import asyncio
+    
+    data = request.get_json()
+    user_input = data.get('message', '')
+    
+    if not user_input:
+        return jsonify({'error': 'No message provided'}), 400
+    
+    try:
+        controller = get_voice_agent_controller()
+        response = asyncio.run(controller.conversate(user_input))
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/voice/audio-to-text', methods=['POST'])
+def audio_to_text():
+    """Convert audio to text using Whisper"""
+    from voice_agent_controller import get_voice_agent_controller
+    import asyncio
+    
+    if 'audio' not in request.files:
+        return jsonify({'error': 'No audio file'}), 400
+    
+    audio_file = request.files['audio']
+    
+    try:
+        controller = get_voice_agent_controller()
+        text = asyncio.run(controller.process_voice_input(audio_file.read()))
+        return jsonify({'text': text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/voice/agents/pool', methods=['GET'])
+def get_agent_pool():
+    """Get current agent pool status"""
+    from voice_agent_controller import get_voice_agent_controller
+    
+    controller = get_voice_agent_controller()
+    return jsonify({
+        'pool_size': len(controller.agent_pool),
+        'agents': list(controller.agent_pool.keys()),
+        'agents_detail': list(controller.agent_pool.values())
+    })
+
+@app.route('/api/voice/specs/history', methods=['GET'])
+def get_spec_history():
+    """Get history of generated specs"""
+    from voice_agent_controller import get_voice_agent_controller
+    
+    controller = get_voice_agent_controller()
+    limit = request.args.get('limit', 10, type=int)
+    
+    specs = [
+        {
+            'task_id': s.task_id,
+            'description': s.description,
+            'agents': s.assigned_agents,
+            'diagram': s.workflow_diagram,
+            'created_at': s.created_at
+        }
+        for s in controller.spec_history[-limit:]
+    ]
+    
+    return jsonify({'specs': specs})
+
+if __name__ == '__main__':
+    # Production: use gunicorn
+    # Development: use Flask dev server
+    debug = os.getenv('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=8002, debug=debug, use_reloader=False)
