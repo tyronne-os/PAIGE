@@ -1,0 +1,1 @@
+import"./usePlainDiff-COIjggZe.js";function e(e,t){if(e.length===0)return!0;let n=1;for(let r=0;r<e.length;r++)if(e.charCodeAt(r)===10&&++n>t)return!1;return!0}function t(t,n){let r=t?.contents??``,i=n?.contents??``;return r.length+i.length>131072?!1:e(r,400)&&e(i,400)}export{t};

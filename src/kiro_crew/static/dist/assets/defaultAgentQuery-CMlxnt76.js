@@ -1,0 +1,1 @@
+import{t as e}from"./client-Dg72A0FS.js";import{t}from"./t-CDKP7d2X.js";function n(e,n){return e||(n?`${n} · ${t(`components.agentSelector.default`)}`:`default`)}var r={queryKey:[`default-agent`],queryFn:()=>e.defaultAgent().then(e=>e.default_agent||``),staleTime:3e4};export{n,r as t};

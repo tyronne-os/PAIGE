@@ -1,0 +1,1 @@
+function e(){return typeof window>`u`||typeof window.matchMedia!=`function`?!1:window.matchMedia(`(pointer: coarse)`).matches||window.matchMedia(`(hover: none)`).matches}export{e as t};

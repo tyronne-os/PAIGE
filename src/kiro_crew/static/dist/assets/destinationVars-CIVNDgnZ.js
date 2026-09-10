@@ -1,0 +1,1 @@
+import{t as e}from"./t-CDKP7d2X.js";var t={connections:`pages.capabilitiesPage.connections_label`,knowledge:`pages.capabilitiesPage.knowledge_label`,skills:`pages.capabilitiesPage.skills_label`};function n(n){return{capabilities:e(`nav.agent_capabilities`),tab:e(t[n])}}export{n as t};

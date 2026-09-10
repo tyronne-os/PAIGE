@@ -1,0 +1,1 @@
+var e=e=>e.metaKey!==e.ctrlKey;export{e as t};

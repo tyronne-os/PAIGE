@@ -1,0 +1,1 @@
+import{b as e,h as t}from"./format-bXjCs8a_.js";var n=6e4;function r(r){if(!r||!Number.isFinite(r)||r<1)return`--`;let i=e(r);if(!i)return`--`;let a=Date.now();return i.getTime()>a&&i.getTime()-a<n?t(a,{now:a}):t(i,{now:a})}export{r as t};

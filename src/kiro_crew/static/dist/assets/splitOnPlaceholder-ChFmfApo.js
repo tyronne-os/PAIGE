@@ -1,0 +1,1 @@
+function e(e,t){let n=`{{${t}}}`,r=e.indexOf(n);return r===-1?[e]:[e.slice(0,r),null,e.slice(r+n.length)].filter(e=>e!==``)}export{e as t};

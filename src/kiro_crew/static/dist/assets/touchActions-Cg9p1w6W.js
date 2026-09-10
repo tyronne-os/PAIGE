@@ -1,0 +1,1 @@
+var e=`[@media(hover:none)]:opacity-100 [@media(hover:none)]:flex-wrap [@media(hover:none)]:[&_button]:p-3 [@media(hover:none)]:[&_svg]:h-4 [@media(hover:none)]:[&_svg]:w-4`;export{e as t};

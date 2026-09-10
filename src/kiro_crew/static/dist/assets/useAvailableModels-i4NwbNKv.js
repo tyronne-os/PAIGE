@@ -1,0 +1,1 @@
+import{x as e}from"./vendor-react-Cwdm_0M2.js";import{a as t,i as n,n as r}from"./providers-BhkGh6uz.js";var i=[{name:`auto`,description:``}];function a({enabled:a}={}){let o=r(),{data:s}=e({queryKey:[`available-models`,o.id],queryFn:async()=>n(await o.fetchAvailableModels()),refetchInterval:t,...a===void 0?{}:{enabled:a}});return s??i}export{a as t};

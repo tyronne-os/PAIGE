@@ -1,0 +1,1 @@
+function e(e){return e.updateAvailable===!0?e.canApply===!0?`apply`:e.command?`command`:`none`:`none`}function t(e,t,n){if(t!==`stable`||n===!0)return e;let r=/^([0-9]+(?:\.[0-9]+)*)-.+$/.exec(e.trim());return r?r[1]:e}export{e as n,t};

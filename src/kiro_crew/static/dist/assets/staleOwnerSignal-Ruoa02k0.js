@@ -1,0 +1,1 @@
+var e=null;function t(t){e=t}function n(e){let t=e;if(typeof e==`string`){let n=e.trim();if(!n.startsWith(`{`))return;try{t=JSON.parse(n)}catch{return}}let n=t?.code;return typeof n==`string`&&n?n:void 0}function r(t,r){return t!==401||n(r)!==`stale_session_reauth`?!1:(e?.(),!0)}export{r as n,t};

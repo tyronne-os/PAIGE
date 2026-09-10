@@ -1,0 +1,43 @@
+{
+  "huggingface_gpu": {
+    "enabled": true,
+    "provider": "huggingface_spaces",
+    "account": "tyronne-os",
+    "gpu_type": "free",
+    "features": {
+      "inference": true,
+      "fine_tuning": true,
+      "model_serving": true,
+      "notebook_compute": true
+    },
+    "models": {
+      "local_llm": {
+        "enabled": true,
+        "type": "quantized_llm",
+        "source": "huggingface_hub",
+        "download_location": "/home/hunt/Downloads/PAIGE/.models",
+        "auto_download": true
+      }
+    },
+    "integration": {
+      "paige_backend": {
+        "use_hf_inference_api": true,
+        "use_hf_spaces_gpu": true,
+        "fallback_to_local": true
+      },
+      "crane_support": {
+        "enable_remote_compute": true,
+        "share_gpu_resources": true
+      }
+    },
+    "limits": {
+      "monthly_api_calls": "unlimited_free_tier",
+      "concurrent_inferences": 1,
+      "max_model_size": "13B",
+      "context_window": 4096
+    },
+    "api_key_env": "HF_TOKEN",
+    "api_key_vault": "huggingface",
+    "auth_status": "configured"
+  }
+}

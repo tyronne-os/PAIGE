@@ -1,0 +1,1 @@
+import"./format-bXjCs8a_.js";import{t as e}from"./vendor-dompurify-DrVcFY1Q.js";function t(e){return e==null?``:String(e).replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`)}function n(t){return e.sanitize(t)}export{n,t};

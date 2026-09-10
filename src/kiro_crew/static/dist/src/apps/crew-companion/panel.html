@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crew Companion</title>
+    <!--
+      The window is TRANSPARENT with a gutter around the card, so the card can draw
+      its own shadow. Every default background has to be cleared explicitly:
+      transparency only shows through where nothing paints, and one stylesheet
+      setting `body { background: … }` would turn the gutter into a visible box.
+
+      The #root padding MUST stay in step with PANEL_PAD in panelPlacement.js — the
+      window is sized as card + padding on each side, so a mismatch offsets the card
+      inside its own window.
+    -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent !important;
+        overflow: hidden;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+             user-select: none;
+      }
+      #root {
+        /* = PANEL_PAD */
+        padding: 32px;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  <script type="importmap">{"imports":{"react":"/vendor/react.mjs","react-dom":"/vendor/react-dom.mjs","react-dom/client":"/vendor/react-dom-client.mjs","react/jsx-runtime":"/vendor/react-jsx-runtime.mjs","@kirocrew/app-sdk":"/vendor/kirocrew-app-sdk.mjs","@kirocrew/app-sdk/ui":"/vendor/kirocrew-ui.mjs","lucide-react":"/vendor/lucide-react.mjs"}}</script>
+    <script type="module" crossorigin src="/assets/app-windows/crew-companion/panel-vKSvnb2P.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-C0FnF6B9.js">
+    <link rel="modulepreload" crossorigin href="/assets/t-CDKP7d2X.js">
+    <link rel="modulepreload" crossorigin href="/assets/all-BXGIFDOO.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-Cwdm_0M2.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-icons-BCu4V0FC.js">
+    <link rel="modulepreload" crossorigin href="/assets/format-bXjCs8a_.js">
+    <link rel="modulepreload" crossorigin href="/assets/useImeGuard-YSE7uJdA.js">
+    <link rel="modulepreload" crossorigin href="/assets/lottie_light-DwEq4Ft2.js">
+    <link rel="modulepreload" crossorigin href="/assets/constants-XAV1MGEQ.js">
+    <link rel="modulepreload" crossorigin href="/assets/kiro_idle-CaeNcorC.js">
+    <link rel="modulepreload" crossorigin href="/assets/panelSkin-GyIJs8WM.js">
+    <link rel="modulepreload" crossorigin href="/assets/PetAvatar-BL2bhOqv.js">
+    <link rel="modulepreload" crossorigin href="/assets/reminders-D2ADNW1P.js">
+    <link rel="stylesheet" crossorigin href="/assets/PetAvatar-B0LMXGJF.css">
+    <link rel="stylesheet" crossorigin href="/assets/panel-DPSTLgOp.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

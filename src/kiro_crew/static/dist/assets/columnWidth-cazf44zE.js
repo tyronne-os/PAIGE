@@ -1,0 +1,1 @@
+function e(e,t,n,r){try{let r=Number(localStorage.getItem(e));if(r>=t&&r<=n)return r}catch{}return r}function t(e){try{return localStorage.getItem(e)===`1`}catch{return!1}}export{e as n,t};

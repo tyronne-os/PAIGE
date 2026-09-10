@@ -1,0 +1,1 @@
+var e=[`tailnet_qr`,`login_link`],t=new Map,n=t=>e.includes(t);function r(){return[...t.values()]}function i(e){return n(e)||t.has(e)}export{r as n,i as t};

@@ -1,0 +1,1 @@
+import{t as e}from"./client-Dg72A0FS.js";var t={queryKey:[`cron-jobs`],queryFn:()=>e.crons().then(e=>e.jobs||[])};export{t};

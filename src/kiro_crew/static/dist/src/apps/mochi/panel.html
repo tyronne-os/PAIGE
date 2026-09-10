@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mochi</title>
+    <style>
+      /*
+       * The panel window is chromeless and its React root paints its own
+       * rounded surface (PanelApp draws a #16161e card with border-radius:12),
+       * so the page background stays TRANSPARENT to let those corners show
+       * through. Everything else is brought to parity with the original chat
+       * entry: global reset, Apple system font stack, themable --text colour,
+       * and the thin custom scrollbar driven by --scrollbar / --scrollbar-hover
+       * (without these the chat-scroll list and code blocks get fat OS
+       * scrollbars).
+       */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        background: transparent;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--text, #cdd6f4);
+        height: 100%;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--scrollbar, rgba(255, 255, 255, 0.06));
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--scrollbar-hover, rgba(255, 255, 255, 0.12));
+      }
+    </style>
+  <script type="importmap">{"imports":{"react":"/vendor/react.mjs","react-dom":"/vendor/react-dom.mjs","react-dom/client":"/vendor/react-dom-client.mjs","react/jsx-runtime":"/vendor/react-jsx-runtime.mjs","@kirocrew/app-sdk":"/vendor/kirocrew-app-sdk.mjs","@kirocrew/app-sdk/ui":"/vendor/kirocrew-ui.mjs","lucide-react":"/vendor/lucide-react.mjs"}}</script>
+    <script type="module" crossorigin src="/assets/app-windows/mochi/panel-DCXeQH2l.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-C0FnF6B9.js">
+    <link rel="modulepreload" crossorigin href="/assets/t-CDKP7d2X.js">
+    <link rel="modulepreload" crossorigin href="/assets/all-BXGIFDOO.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-Cwdm_0M2.js">
+    <link rel="modulepreload" crossorigin href="/assets/safeStorage--aWtkcR6.js">
+    <link rel="modulepreload" crossorigin href="/assets/apiError-DvkpYwYt.js">
+    <link rel="modulepreload" crossorigin href="/assets/staleOwnerSignal-Ruoa02k0.js">
+    <link rel="modulepreload" crossorigin href="/assets/errorReport-C7L0QDWt.js">
+    <link rel="modulepreload" crossorigin href="/assets/client-Dg72A0FS.js">
+    <link rel="modulepreload" crossorigin href="/assets/context-MCBIQyVo.js">
+    <link rel="modulepreload" crossorigin href="/assets/shim-CvKB5TQQ.js">
+    <link rel="modulepreload" crossorigin href="/assets/useTranslation-BxQyBsiN.js">
+    <link rel="modulepreload" crossorigin href="/assets/runModel-Bc0IK-x1.js">
+    <link rel="modulepreload" crossorigin href="/assets/useTheme-CKrDJ86c.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-icons-BCu4V0FC.js">
+    <link rel="modulepreload" crossorigin href="/assets/BrandIcon-D41JzTRK.js">
+    <link rel="modulepreload" crossorigin href="/assets/format-bXjCs8a_.js">
+    <link rel="modulepreload" crossorigin href="/assets/bundle-mjs-DxdGK6Xj.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-Nf8EyVgf.js">
+    <link rel="modulepreload" crossorigin href="/assets/ErrorNotice-CmRkjT6v.js">
+    <link rel="modulepreload" crossorigin href="/assets/utils-C3eKvuTu.js">
+    <link rel="modulepreload" crossorigin href="/assets/clipboard-ClGvl0xJ.js">
+    <link rel="modulepreload" crossorigin href="/assets/floating-ui.react-dom-DYZ4izP8.js">
+    <link rel="modulepreload" crossorigin href="/assets/Combination-pjS3TZEK.js">
+    <link rel="modulepreload" crossorigin href="/assets/dist-DLbF0VZl.js">
+    <link rel="modulepreload" crossorigin href="/assets/usePersistedBool-CDOleb56.js">
+    <link rel="modulepreload" crossorigin href="/assets/electron-DFRQJbBi.js">
+    <link rel="modulepreload" crossorigin href="/assets/touchActions-Cg9p1w6W.js">
+    <link rel="modulepreload" crossorigin href="/assets/Clickable-D4GuEseJ.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-markdown-CVOEUJZx.js">
+    <link rel="modulepreload" crossorigin href="/assets/SegmentedControl-DjKLrwEV.js">
+    <link rel="modulepreload" crossorigin href="/assets/urlTransform-C34xckNA.js">
+    <link rel="modulepreload" crossorigin href="/assets/iconContrast-dhVo7l1e.js">
+    <link rel="modulepreload" crossorigin href="/assets/useLanguageGeneration-CqIOWvir.js">
+    <link rel="modulepreload" crossorigin href="/assets/usePlainDiff-COIjggZe.js">
+    <link rel="modulepreload" crossorigin href="/assets/renderBudget-BWtAr0eK.js">
+    <link rel="modulepreload" crossorigin href="/assets/pierre-3I8vzfkI.js">
+    <link rel="modulepreload" crossorigin href="/assets/useImeGuard-YSE7uJdA.js">
+    <link rel="modulepreload" crossorigin href="/assets/useDialogFocusTrap-DKTbM5PP.js">
+    <link rel="modulepreload" crossorigin href="/assets/Modal-Ckq_T0Su.js">
+    <link rel="modulepreload" crossorigin href="/assets/MarkdownRenderer-DSSRq6Be.js">
+    <link rel="modulepreload" crossorigin href="/assets/SnipOverlay-B_UHnMTz.js">
+    <link rel="modulepreload" crossorigin href="/assets/fileTokens-D4ikR2cz.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-dompurify-DrVcFY1Q.js">
+    <link rel="modulepreload" crossorigin href="/assets/trustPatterns-f4MhUv80.js">
+    <link rel="modulepreload" crossorigin href="/assets/config-CW435ioc.js">
+    <link rel="modulepreload" crossorigin href="/assets/i18nKeys-DLlH4B3g.js">
+    <link rel="modulepreload" crossorigin href="/assets/toolPurpose-DkMYvtXo.js">
+    <link rel="modulepreload" crossorigin href="/assets/mochiLanguage-6NOE-Jv1.js">
+    <link rel="modulepreload" crossorigin href="/assets/PanelErrorBoundary-9TT0zKv_.js">
+    <link rel="modulepreload" crossorigin href="/assets/useMenuKeyboard-BqwsJ19p.js">
+    <link rel="modulepreload" crossorigin href="/assets/ContextMenu-DKKxAOKb.js">
+    <link rel="modulepreload" crossorigin href="/assets/highlightClient-EH5FV9vK.js">
+    <link rel="modulepreload" crossorigin href="/assets/destinationVars-CIVNDgnZ.js">
+    <link rel="modulepreload" crossorigin href="/assets/statsFormatters-C2yj6FiF.js">
+    <link rel="modulepreload" crossorigin href="/assets/SettingsPanel-CQRCMIFF.js">
+    <link rel="stylesheet" crossorigin href="/assets/vendor-markdown-CaH0jbfC.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

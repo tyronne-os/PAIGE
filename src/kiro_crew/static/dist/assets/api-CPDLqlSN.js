@@ -1,0 +1,1 @@
+async function e(e,t){let n=await fetch(`/api/knowledge${e}`,t);if(!n.ok){let e=`${n.status} ${n.statusText}`;try{let t=await n.json();t?.error&&(e=t.error)}catch{}throw Error(e)}return n.json()}export{e as t};

@@ -1,0 +1,1 @@
+var e=/^[a-z0-9][a-z0-9._-]*\.md$/i;function t(t){return!t||!e.test(t)?null:`https://github.com/kirodotdev/KiroCrew/blob/main/src/kiro_crew/docs/${t}`}function n({interruptionShown:e,settled:t,memoryMode:n,handledThisLaunch:r}){return!(!t||e||r||n===`incognito`||n===`temporary`)}var r=!1;function i(){return r}function a(){r=!0}export{t as i,a as n,i as r,n as t};

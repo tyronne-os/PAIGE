@@ -1,0 +1,2 @@
+[console_scripts]
+kirocrew = kiro_crew._bootstrap:main

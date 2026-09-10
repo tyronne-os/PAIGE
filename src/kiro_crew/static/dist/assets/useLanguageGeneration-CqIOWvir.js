@@ -1,0 +1,1 @@
+import{o as e}from"./rolldown-runtime-C0FnF6B9.js";import{J as t}from"./vendor-react-Cwdm_0M2.js";import{h as n}from"./t-CDKP7d2X.js";var r=e(t(),1),i=0,a=new Set;n.on(`languageChanged`,()=>{i++,a.forEach(e=>e())});function o(e){return a.add(e),()=>{a.delete(e)}}function s(){return i}function c(){return(0,r.useSyncExternalStore)(o,s,s)}export{c as t};
