@@ -2,9 +2,15 @@ import { useState } from 'react'
 import { MessageCircle, Settings, Plus, Menu, Send } from 'lucide-react'
 import Sidebar from './components/Sidebar'
 import ChatPanel from './components/ChatPanel'
+import ProjectPreview from './components/ProjectPreview'
 import './App.css'
 
+type AppMode = 'chat' | 'project'
+type ProjectMode = 'split' | 'pipeline' | 'eden'
+
 function App() {
+  const [appMode, setAppMode] = useState<AppMode>('chat')
+  const [projectMode, setProjectMode] = useState<ProjectMode>('split')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [currentSession, setCurrentSession] = useState<string>('session-1')
   const [sessions, setSessions] = useState([
@@ -75,6 +81,30 @@ function App() {
               <Menu size={20} />
             </button>
             <h1 className="text-xl font-semibold">PAIGE IDE</h1>
+            
+            {/* Mode Switcher */}
+            <div className="ml-6 flex gap-2 border-l border-slate-700 pl-6">
+              <button
+                onClick={() => setAppMode('chat')}
+                className={`px-4 py-1 rounded-lg font-medium transition ${
+                  appMode === 'chat'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                💬 Chat
+              </button>
+              <button
+                onClick={() => setAppMode('project')}
+                className={`px-4 py-1 rounded-lg font-medium transition ${
+                  appMode === 'project'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                🎯 Project
+              </button>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <button className="p-2 hover:bg-slate-800 rounded-lg transition">
@@ -83,13 +113,20 @@ function App() {
           </div>
         </div>
 
-        {/* Chat Area */}
-        <ChatPanel
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          input={input}
-          onInputChange={setInput}
-        />
+        {/* Content Area */}
+        {appMode === 'chat' ? (
+          <ChatPanel
+            messages={messages}
+            onSendMessage={handleSendMessage}
+            input={input}
+            onInputChange={setInput}
+          />
+        ) : (
+          <ProjectPreview
+            mode={projectMode}
+            onModeChange={setProjectMode}
+          />
+        )}
       </main>
     </div>
   )
