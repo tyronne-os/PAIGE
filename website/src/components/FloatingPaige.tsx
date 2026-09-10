@@ -24,13 +24,16 @@ interface ScreenAnalysis {
 }
 
 const FloatingPaige: React.FC = () => {
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showVoiceClone, setShowVoiceClone] = useState(false);
   const [screenAnalysis, setScreenAnalysis] = useState<ScreenAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [position, setPosition] = useState({ 
+    x: 20, 
+    y: window.innerHeight - 120
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   
@@ -464,3 +467,6 @@ const FloatingPaige: React.FC = () => {
 declare const html2canvas: any;
 
 export default FloatingPaige;
+
+/* Add to end of component JSX before closing div */
+// Add orb styles below the existing content
