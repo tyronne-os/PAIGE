@@ -83,27 +83,30 @@ function App() {
 
   // Load GitHub token on mount
   useEffect(() => {
-    try {
-      const token = localStorage.getItem('github_token')
-      if (!token) {
-        // Prompt for GitHub token on first load (optional)
-        setTimeout(() => {
-          const newToken = prompt('Enter your GitHub Personal Access Token (leave blank to skip):')
-          if (newToken) {
-            localStorage.setItem('github_token', newToken)
+    const initGitHub = async () => {
+      try {
+        let token = localStorage.getItem('github_token')
+        
+        if (!token) {
+          // Prompt synchronously for GitHub token on first load
+          token = prompt('Enter your GitHub Personal Access Token (or leave blank to skip):')
+          if (token && token.trim()) {
+            localStorage.setItem('github_token', token.trim())
           }
-        }, 500)
+        }
+        
+        // Show recent projects on first load if we have a token
+        const hasSeenRecentProjects = localStorage.getItem('paige-recent-projects-shown')
+        if (!hasSeenRecentProjects && token) {
+          setShowRecentProjects(true)
+          localStorage.setItem('paige-recent-projects-shown', 'true')
+        }
+      } catch (e) {
+        console.error('Error in GitHub init:', e)
       }
-      
-      // Show recent projects on first load
-      const hasSeenRecentProjects = localStorage.getItem('paige-recent-projects-shown')
-      if (!hasSeenRecentProjects) {
-        setShowRecentProjects(true)
-        localStorage.setItem('paige-recent-projects-shown', 'true')
-      }
-    } catch (e) {
-      console.error('Error in useEffect:', e)
     }
+    
+    initGitHub()
   }, [])
 
   const handleNewSession = () => {

@@ -19,7 +19,7 @@ const RecentProjects: React.FC<{ onClose: () => void; onSelectProject?: (project
   const [projects, setProjects] = useState<Project[]>([])
 
   useEffect(() => {
-    // Load recent projects from localStorage
+    // Load recent projects from localStorage first
     const saved = localStorage.getItem('paige-recent-projects')
     if (saved) {
       try {
@@ -29,9 +29,9 @@ const RecentProjects: React.FC<{ onClose: () => void; onSelectProject?: (project
       }
     }
 
-    // If empty, load from GitHub
+    // Then fetch fresh from GitHub if we have a token
     const token = localStorage.getItem('github_token')
-    if (token && projects.length === 0) {
+    if (token && token.trim()) {
       fetchGitHubProjects(token)
     }
   }, [])
