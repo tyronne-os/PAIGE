@@ -81,17 +81,38 @@ function App() {
   const [messages, setMessages] = useState<Array<{ id: string; role: string; content: string }>>([])
   const [input, setInput] = useState('')
 
-  // Load GitHub token on mount
+  // Load GitHub token on mount - ONE TIME ONLY
   useEffect(() => {
     const initGitHub = async () => {
       try {
+        // Check if we already asked for token
+        const tokenAsked = localStorage.getItem('paige-github-token-asked')
         let token = localStorage.getItem('github_token')
         
-        if (!token) {
-          // Prompt synchronously for GitHub token on first load
+        // Only prompt ONCE, ever
+        if (!tokenAsked && !token) {
           token = prompt('Enter your GitHub Personal Access Token (or leave blank to skip):')
+          localStorage.setItem('paige-github-token-asked', 'true')
+          
           if (token && token.trim()) {
+            // Save to both localStorage AND Key Vault
             localStorage.setItem('github_token', token.trim())
+            
+            // Store in API Keys vault
+            const existingKeys = JSON.parse(localStorage.getItem('paige-api-keys') || '[]')
+            const githubKeyExists = existingKeys.some((k: any) => k.provider === 'github')
+            
+            if (!githubKeyExists) {
+              const masked = token.slice(0, 4) + '...' + token.slice(-4)
+              const newKey = {
+                name: 'GitHub (Primary)',
+                key: token.trim(),
+                provider: 'github',
+                masked
+              }
+              existingKeys.push(newKey)
+              localStorage.setItem('paige-api-keys', JSON.stringify(existingKeys))
+            }
           }
         }
         

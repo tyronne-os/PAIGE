@@ -17,16 +17,24 @@ const GitHubBrowser: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [error, setError] = useState('')
+  const [authenticated, setAuthenticated] = useState(false)
 
   useEffect(() => {
-    fetchRepos()
+    const token = localStorage.getItem('github_token')
+    if (token) {
+      setAuthenticated(true)
+      fetchRepos()
+    } else {
+      setError('GitHub token not found. Add one in Settings → API Keys.')
+      setLoading(false)
+    }
   }, [])
 
   const fetchRepos = async () => {
     try {
       const token = localStorage.getItem('github_token')
       if (!token) {
-        setError('No GitHub token found. Add one in Settings.')
+        setError('GitHub token not found')
         setLoading(false)
         return
       }
@@ -35,7 +43,16 @@ const GitHubBrowser: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
         headers: { Authorization: `token ${token}` }
       })
 
-      if (!response.ok) throw new Error('Failed to fetch repos')
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError('Invalid GitHub token. Check Settings → API Keys.')
+        } else {
+          throw new Error('Failed to fetch repos')
+        }
+        setLoading(false)
+        return
+      }
+      
       const data = await response.json()
       setRepos(data)
       setLoading(false)
@@ -74,9 +91,12 @@ const GitHubBrowser: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   return (
     <div className="github-browser">
       <div className="gb-header">
-        <h2>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c2.6-.4 5.6-2 5.6-7 0-1.25-.756-2.3-2-2.972A4.9 4.9 0 0 0 15.666 3.75c-.748-1-.747-2.592-.191-2.766a10.7 10.7 0 0 0-5.523 1.14c-.335.118-.8 0-1.022-.217A4.882 4.882 0 0 0 7.97 1.05c-1.318 0-2.592.878-3.414 2.372C3.4 5.exposition 3 7.268 3 9.589c0 5 3 6.6 5.6 7a4.821 4.821 0 0 0-1 3.5v4"></path><circle cx="9" cy="18" r="1"></circle></svg> GitHub Repositories
-        </h2>
+        <div>
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c2.6-.4 5.6-2 5.6-7 0-1.25-.756-2.3-2-2.972A4.9 4.9 0 0 0 15.666 3.75c-.748-1-.747-2.592-.191-2.766a10.7 10.7 0 0 0-5.523 1.14c-.335.118-.8 0-1.022-.217A4.882 4.882 0 0 0 7.97 1.05c-1.318 0-2.592.878-3.414 2.372C3.4 5.exposition 3 7.268 3 9.589c0 5 3 6.6 5.6 7a4.821 4.821 0 0 0-1 3.5v4"></path><circle cx="9" cy="18" r="1"></circle></svg> GitHub Repositories
+          </h2>
+          {authenticated && <p style={{ marginTop: '0.25rem', fontSize: '0.85rem', color: '#10b981' }}>✓ Connected to vault</p>}
+        </div>
         <button className="close-btn" onClick={onClose}>✕</button>
       </div>
 

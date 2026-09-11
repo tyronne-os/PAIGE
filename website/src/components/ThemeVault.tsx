@@ -62,6 +62,16 @@ const ThemeVault: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
         console.error('Error loading theme:', e)
       }
     }
+    
+    // Load API keys from vault
+    const savedKeys = localStorage.getItem('paige-api-keys')
+    if (savedKeys) {
+      try {
+        setApiKeys(JSON.parse(savedKeys))
+      } catch (e) {
+        console.error('Error loading API keys:', e)
+      }
+    }
   }, [])
 
   const applyThemeToDOM = (theme: Theme) => {
