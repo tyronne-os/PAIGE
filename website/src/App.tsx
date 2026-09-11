@@ -5,6 +5,7 @@ import ChatPanel from './components/ChatPanel'
 import ProjectPreview from './components/ProjectPreview'
 import DesignEasel from './components/DesignEasel'
 import ModelGym from './components/ModelGym'
+import ThemeVault from './components/ThemeVault'
 import './App.css'
 
 type AppMode = 'chat' | 'project' | 'design' | 'gym'
@@ -32,6 +33,7 @@ function App() {
   const [appMode, setAppMode] = useState<AppMode>('chat')
   const [projectMode, setProjectMode] = useState<ProjectMode>('split')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [showSettings, setShowSettings] = useState(false)
   const [currentSession, setCurrentSession] = useState<string>('session-1')
   const [sessions, setSessions] = useState([
     { id: 'session-1', title: 'New Chat', created: new Date() },
@@ -145,11 +147,23 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="p-2 hover:bg-slate-800 rounded-lg transition">
+            <button 
+              onClick={() => setShowSettings(!showSettings)}
+              className="p-2 hover:bg-slate-800 rounded-lg transition"
+            >
               <Settings size={20} />
             </button>
           </div>
         </div>
+
+        {/* Settings Modal */}
+        {showSettings && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-slate-950 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-auto">
+              <ThemeVault onClose={() => setShowSettings(false)} />
+            </div>
+          </div>
+        )}
 
         {/* Content Area */}
         <ErrorBoundary>
