@@ -82,19 +82,12 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
 
   return (
     <div className="flex-1 flex flex-col bg-gradient-to-b from-slate-900 to-slate-950">
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      {/* Messages Container - Smaller */}
+      <div className="h-40 overflow-y-auto p-4 space-y-2 border-b border-slate-700">
         {messages.length === 0 ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center text-slate-400 max-w-md">
-              <h2 className="text-3xl font-bold text-slate-300 mb-4">Welcome to PAIGE</h2>
-              <p className="mb-4">Start a conversation with your AI team</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="bg-slate-800 rounded-lg p-2">📤 Upload files</div>
-                <div className="bg-slate-800 rounded-lg p-2">🤖 Pick agents</div>
-                <div className="bg-slate-800 rounded-lg p-2">⚡ Auto-pilot</div>
-                <div className="bg-slate-800 rounded-lg p-2">📁 Manage folders</div>
-              </div>
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-slate-400 text-sm">
+              <p>Start a conversation with your AI team</p>
             </div>
           </div>
         ) : (
@@ -105,13 +98,13 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                  className={`max-w-xs px-3 py-2 rounded text-xs ${
                     message.role === 'user'
                       ? 'bg-blue-600 text-white rounded-br-none'
                       : 'bg-slate-800 text-slate-100 rounded-bl-none'
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  <p>{message.content}</p>
                 </div>
               </div>
             ))}
@@ -120,23 +113,23 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
         )}
       </div>
 
-      {/* Composer Area */}
-      <div className="border-t border-slate-700 bg-slate-900 p-4 space-y-3">
+      {/* Composer Area - SMALLER */}
+      <div className="border-t border-slate-700 bg-slate-900 p-3 space-y-2">
         {/* Context & Controls Row */}
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-lg border border-slate-700 flex-wrap">
+        <div className="flex items-center gap-2 px-3 py-1 bg-slate-800 rounded-lg border border-slate-700 flex-wrap">
           {/* Model Selector */}
           <div className="relative">
             <button
               onClick={() => setShowModelMenu(!showModelMenu)}
-              className="flex items-center gap-2 px-3 py-1 rounded-lg bg-green-700 hover:bg-green-600 text-white text-sm font-medium transition border border-green-500"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-green-700 hover:bg-green-600 text-white text-xs font-medium transition border border-green-500"
               title="Current model: Click to change"
             >
               <span>{currentModel?.icon}</span>
-              <span className="truncate max-w-[140px]">{currentModel?.name}</span>
-              <Settings2 size={14} className="opacity-70" />
+              <span className="truncate max-w-[120px]">{currentModel?.name}</span>
+              <Settings2 size={12} className="opacity-70" />
             </button>
             {showModelMenu && (
-              <div className="absolute top-full mt-2 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[280px]">
+              <div className="absolute top-full mt-1 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[280px]">
                 {models.map((model: any) => (
                   <button
                     key={model.id}
@@ -144,20 +137,20 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
                       setSelectedModel(model.id)
                       setShowModelMenu(false)
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm transition border-b border-slate-700 last:border-b-0 ${
+                    className={`w-full text-left px-3 py-1 text-xs transition border-b border-slate-700 last:border-b-0 ${
                       selectedModel === model.id
                         ? 'bg-green-600 text-white'
                         : 'text-slate-200 hover:bg-slate-800'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <span>{model.icon}</span>
                         <span className="font-medium">{model.name}</span>
                       </div>
                       {selectedModel === model.id && <span className="text-green-300">✓</span>}
                     </div>
-                    <div className="text-xs text-slate-400 mt-1 ml-6">
+                    <div className="text-xs text-slate-400 mt-0.5 ml-5">
                       {model.source === 'local' ? `⚡ ${model.speed} | 💾 ${model.vram}` : `${model.source} API`}
                     </div>
                   </button>
@@ -170,14 +163,14 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
           <div className="relative">
             <button
               onClick={() => setShowAgentMenu(!showAgentMenu)}
-              className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium transition"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition"
             >
               <span>{currentAgent?.icon}</span>
-              <span className="truncate max-w-[140px]">{currentAgent?.name}</span>
-              <Settings2 size={14} className="opacity-50" />
+              <span className="truncate max-w-[100px]">{currentAgent?.name}</span>
+              <Settings2 size={12} className="opacity-50" />
             </button>
             {showAgentMenu && (
-              <div className="absolute top-full mt-2 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[220px]">
+              <div className="absolute top-full mt-1 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[200px]">
                 {agents.map(agent => (
                   <button
                     key={agent.id}
@@ -185,7 +178,7 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
                       setSelectedAgent(agent.id)
                       setShowAgentMenu(false)
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm transition ${
+                    className={`w-full text-left px-3 py-1 text-xs transition ${
                       selectedAgent === agent.id
                         ? 'bg-blue-600 text-white'
                         : 'text-slate-200 hover:bg-slate-800'
@@ -201,14 +194,14 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
           {/* Autopilot Toggle */}
           <button
             onClick={() => setAutopilot(!autopilot)}
-            className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium transition ${
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium transition ${
               autopilot
                 ? 'bg-green-600 hover:bg-green-700 text-white'
                 : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
             }`}
           >
-            <Zap size={16} />
-            {autopilot ? 'Autopilot ON' : 'Autopilot OFF'}
+            <Zap size={12} />
+            {autopilot ? 'ON' : 'OFF'}
           </button>
 
           {/* Spacer */}
@@ -217,9 +210,9 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
           {/* Upload Button */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium transition"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition"
           >
-            <Upload size={16} />
+            <Upload size={12} />
             Upload
           </button>
           <input
@@ -231,52 +224,56 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
           />
         </div>
 
-        {/* Folders Panel */}
-        <div className="px-4 py-2 bg-slate-800 rounded-lg border border-slate-700 max-h-32 overflow-y-auto">
+        {/* Folders Panel - LARGER */}
+        <div className="flex-1 px-4 py-3 bg-slate-800 rounded-lg border border-slate-700 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-400">PROJECT CONTEXT</span>
+            <span className="text-sm font-semibold text-slate-300">📁 PROJECT CONTEXT</span>
             <button
               onClick={addFolder}
               className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-slate-200 transition"
               title="Add folder"
             >
-              <FolderPlus size={14} />
+              <FolderPlus size={16} />
             </button>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-2 flex-1 overflow-y-auto">
             {folders.map(folder => (
               <div key={folder.id}>
                 <div className="flex items-center gap-1 group">
                   <button
                     onClick={() => toggleFolder(folder.id)}
-                    className="p-0.5 hover:bg-slate-700 rounded transition"
+                    className="p-0.5 hover:bg-slate-700 rounded transition text-sm"
                   >
                     {folder.expanded ? '▼' : '▶'}
                   </button>
-                  <Folder size={14} className="text-yellow-400" />
+                  <Folder size={16} className="text-yellow-400" />
                   <input
                     type="text"
                     value={folder.name}
                     readOnly
-                    className="flex-1 text-xs text-slate-300 bg-transparent hover:bg-slate-700/50 px-1 rounded truncate"
+                    className="flex-1 text-sm text-slate-300 bg-transparent hover:bg-slate-700/50 px-1 rounded truncate"
                   />
                   <button
                     onClick={() => deleteFolder(folder.id)}
-                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-900/50 rounded text-red-400 transition text-xs"
+                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-900/50 rounded text-red-400 transition text-sm"
                   >
                     ✕
                   </button>
                 </div>
                 {folder.expanded && (
-                  <div className="ml-4 text-xs text-slate-500 py-1">
-                    <div className="flex items-center gap-1 opacity-60">
-                      <File size={12} />
+                  <div className="ml-6 text-sm text-slate-400 py-2 space-y-1">
+                    <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
+                      <File size={14} />
                       <span>crane-model.py</span>
                     </div>
-                    <div className="flex items-center gap-1 opacity-60">
-                      <File size={12} />
+                    <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
+                      <File size={14} />
                       <span>config.json</span>
+                    </div>
+                    <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
+                      <File size={14} />
+                      <span>requirements.txt</span>
                     </div>
                   </div>
                 )}
@@ -286,35 +283,35 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
         </div>
 
         {/* Input Area */}
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={e => onInputChange(e.target.value)}
             onKeyPress={e => e.key === 'Enter' && onSendMessage()}
-            placeholder="Message PAIGE with your AI team... (Ctrl+Enter to send)"
-            className="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition"
+            placeholder="Message PAIGE... (Enter to send)"
+            className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition"
           />
           <button
             onClick={onSendMessage}
             disabled={!input.trim()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed rounded-lg transition flex items-center gap-2 text-white font-medium"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed rounded-lg transition flex items-center gap-1 text-white font-medium text-sm"
           >
-            <Send size={18} />
+            <Send size={14} />
           </button>
         </div>
 
         {/* Status Bar */}
-        <div className="flex items-center justify-between px-4 py-2 text-xs text-slate-300 bg-gradient-to-r from-slate-800 to-slate-900 rounded-lg border border-slate-700/50">
-          <div className="flex gap-4 items-center">
+        <div className="flex items-center justify-between px-3 py-1 text-xs text-slate-300 bg-gradient-to-r from-slate-800 to-slate-900 rounded-lg border border-slate-700/50">
+          <div className="flex gap-3 items-center">
             <span>🤖 {currentAgent?.name}</span>
-            <span className="flex items-center gap-1 bg-green-900/50 px-2 py-1 rounded border border-green-700">
-              <span>💬 Active Model:</span>
+            <span className="flex items-center gap-1 bg-green-900/50 px-2 py-0.5 rounded border border-green-700">
+              <span>💬</span>
               <span className="font-semibold text-green-300">{currentModel?.name}</span>
             </span>
-            {autopilot && <span className="text-green-400 animate-pulse">⚡ Autopilot Active</span>}
+            {autopilot && <span className="text-green-400 animate-pulse">⚡ AP</span>}
           </div>
-          <span className="text-slate-500">{folders.length} folder{folders.length !== 1 ? 's' : ''}</span>
+          <span className="text-slate-500">{folders.length} folders</span>
         </div>
       </div>
     </div>
