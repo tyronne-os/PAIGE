@@ -1,0 +1,194 @@
+.github-browser {
+  background: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #e2e8f0;
+}
+
+.gb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #475569;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.gb-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #e2e8f0;
+}
+
+.gb-controls {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid #475569;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.fetch-btn,
+.create-btn {
+  flex: 1;
+  padding: 0.5rem;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.fetch-btn:hover,
+.create-btn:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.fetch-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.create-form {
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid #475569;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.create-form input,
+.create-form textarea {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid #475569;
+  border-radius: 4px;
+  color: #e2e8f0;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.submit-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 0.4rem;
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid #22c55e;
+  border-radius: 4px;
+  color: #22c55e;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: rgba(107, 114, 128, 0.2);
+  border-color: #6b7280;
+  color: #9ca3af;
+}
+
+.repos-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empty {
+  text-align: center;
+  color: #64748b;
+  padding: 1rem;
+  font-size: 0.85rem;
+}
+
+.repo-item {
+  background: rgba(71, 85, 105, 0.1);
+  border: 1px solid #475569;
+  border-radius: 4px;
+  padding: 0.75rem;
+  transition: all 0.2s;
+}
+
+.repo-item:hover {
+  background: rgba(71, 85, 105, 0.2);
+}
+
+.repo-info a {
+  color: #3b82f6;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.repo-info a:hover {
+  color: #60a5fa;
+}
+
+.repo-info p {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.repo-meta {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.language {
+  background: rgba(139, 92, 246, 0.2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  color: #c4b5fd;
+}
+
+.stars {
+  color: #fbbf24;
+}
