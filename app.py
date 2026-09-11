@@ -37,6 +37,151 @@ def serve_index():
         return send_from_directory(dist_path, 'index.html')
     return {'error': 'Frontend not built. Run: cd website && npm run build'}, 404
 
+# ============ PROJECT LOADING APIs (BEFORE catch-all) ============
+
+@app.route('/api/project/load', methods=['POST'])
+def load_project():
+    """Load a project from filesystem or GitHub"""
+    data = request.get_json()
+    project_path = data.get('projectPath')
+    project_url = data.get('projectUrl')
+    
+    if not project_path and not project_url:
+        return jsonify({'error': 'projectPath or projectUrl required'}), 400
+    
+    try:
+        from pathlib import Path
+        import os
+        
+        # Handle local filesystem path
+        if project_path:
+            path = Path(project_path)
+            if not path.exists():
+                return jsonify({'error': f'Path not found: {project_path}'}), 404
+            
+            # Scan project structure
+            files = []
+            directories = []
+            
+            for root, dirs, filenames in os.walk(path):
+                # Skip venv and common ignore dirs
+                dirs[:] = [d for d in dirs if d not in ['venv', '__pycache__', '.git', 'node_modules', '.env']]
+                
+                for file in filenames:
+                    if not file.startswith('.'):
+                        rel_path = os.path.relpath(os.path.join(root, file), path)
+                        files.append(rel_path)
+                
+                for dir in dirs:
+                    if dir not in ['venv', '__pycache__', '.git', 'node_modules']:
+                        rel_path = os.path.relpath(os.path.join(root, dir), path)
+                        directories.append(rel_path)
+            
+            project_name = path.name
+            
+            return jsonify({
+                'success': True,
+                'project': {
+                    'name': project_name,
+                    'path': str(path),
+                    'type': 'local',
+                    'files': files[:50],  # Limit to first 50
+                    'directories': directories[:20],
+                    'file_count': len(files),
+                    'dir_count': len(directories)
+                }
+            })
+        
+        # Handle GitHub URL
+        elif project_url:
+            # Parse GitHub URL
+            import re
+            match = re.match(r'https://github\.com/([^/]+)/([^/]+)', project_url)
+            if not match:
+                return jsonify({'error': 'Invalid GitHub URL'}), 400
+            
+            owner, repo = match.groups()
+            
+            return jsonify({
+                'success': True,
+                'project': {
+                    'name': repo,
+                    'url': project_url,
+                    'type': 'github',
+                    'owner': owner,
+                    'repo': repo
+                }
+            })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/project/files', methods=['GET'])
+def list_project_files():
+    """List files in project"""
+    project_path = request.args.get('path')
+    
+    if not project_path:
+        return jsonify({'error': 'path parameter required'}), 400
+    
+    try:
+        from pathlib import Path
+        import os
+        
+        path = Path(project_path)
+        if not path.exists():
+            return jsonify({'error': f'Path not found: {project_path}'}), 404
+        
+        files = []
+        for item in sorted(path.iterdir()):
+            if not item.name.startswith('.'):
+                files.append({
+                    'name': item.name,
+                    'type': 'directory' if item.is_dir() else 'file',
+                    'path': str(item)
+                })
+        
+        return jsonify({'files': files})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/project/file-content', methods=['GET'])
+def get_project_file_content():
+    """Get content of a file in project"""
+    file_path = request.args.get('path')
+    
+    if not file_path:
+        return jsonify({'error': 'path parameter required'}), 400
+    
+    try:
+        from pathlib import Path
+        
+        path = Path(file_path)
+        if not path.exists():
+            return jsonify({'error': f'File not found: {file_path}'}), 404
+        
+        if not path.is_file():
+            return jsonify({'error': f'Not a file: {file_path}'}), 400
+        
+        # Read file (limit to 1MB)
+        if path.stat().st_size > 1024 * 1024:
+            with open(path, 'r') as f:
+                content = f.read(1024 * 1024) + '\n... (truncated)'
+        else:
+            with open(path, 'r') as f:
+                content = f.read()
+        
+        return jsonify({
+            'path': str(path),
+            'name': path.name,
+            'size': path.stat().st_size,
+            'content': content
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/<path:path>')
 def serve_static(path):
     """Serve static files from dist"""
@@ -694,6 +839,149 @@ def get_gym_project(project_id):
         return jsonify({'error': 'Project not found'}), 404
     
     return jsonify(project)
+
+@app.route('/api/project/load', methods=['POST'])
+def load_project():
+    """Load a project from filesystem or GitHub"""
+    data = request.get_json()
+    project_path = data.get('projectPath')
+    project_url = data.get('projectUrl')
+    
+    if not project_path and not project_url:
+        return jsonify({'error': 'projectPath or projectUrl required'}), 400
+    
+    try:
+        from pathlib import Path
+        import os
+        
+        # Handle local filesystem path
+        if project_path:
+            path = Path(project_path)
+            if not path.exists():
+                return jsonify({'error': f'Path not found: {project_path}'}), 404
+            
+            # Scan project structure
+            files = []
+            directories = []
+            
+            for root, dirs, filenames in os.walk(path):
+                # Skip venv and common ignore dirs
+                dirs[:] = [d for d in dirs if d not in ['venv', '__pycache__', '.git', 'node_modules', '.env']]
+                
+                for file in filenames:
+                    if not file.startswith('.'):
+                        rel_path = os.path.relpath(os.path.join(root, file), path)
+                        files.append(rel_path)
+                
+                for dir in dirs:
+                    if dir not in ['venv', '__pycache__', '.git', 'node_modules']:
+                        rel_path = os.path.relpath(os.path.join(root, dir), path)
+                        directories.append(rel_path)
+            
+            project_name = path.name
+            
+            return jsonify({
+                'success': True,
+                'project': {
+                    'name': project_name,
+                    'path': str(path),
+                    'type': 'local',
+                    'files': files[:50],  # Limit to first 50
+                    'directories': directories[:20],
+                    'file_count': len(files),
+                    'dir_count': len(directories)
+                }
+            })
+        
+        # Handle GitHub URL
+        elif project_url:
+            # Parse GitHub URL
+            import re
+            match = re.match(r'https://github\.com/([^/]+)/([^/]+)', project_url)
+            if not match:
+                return jsonify({'error': 'Invalid GitHub URL'}), 400
+            
+            owner, repo = match.groups()
+            
+            return jsonify({
+                'success': True,
+                'project': {
+                    'name': repo,
+                    'url': project_url,
+                    'type': 'github',
+                    'owner': owner,
+                    'repo': repo
+                }
+            })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/project/files', methods=['GET'])
+def list_project_files():
+    """List files in project"""
+    project_path = request.args.get('path')
+    
+    if not project_path:
+        return jsonify({'error': 'path parameter required'}), 400
+    
+    try:
+        from pathlib import Path
+        import os
+        
+        path = Path(project_path)
+        if not path.exists():
+            return jsonify({'error': f'Path not found: {project_path}'}), 404
+        
+        files = []
+        for item in sorted(path.iterdir()):
+            if not item.name.startswith('.'):
+                files.append({
+                    'name': item.name,
+                    'type': 'directory' if item.is_dir() else 'file',
+                    'path': str(item)
+                })
+        
+        return jsonify({'files': files})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/project/file-content', methods=['GET'])
+def get_project_file_content():
+    """Get content of a file in project"""
+    file_path = request.args.get('path')
+    
+    if not file_path:
+        return jsonify({'error': 'path parameter required'}), 400
+    
+    try:
+        from pathlib import Path
+        
+        path = Path(file_path)
+        if not path.exists():
+            return jsonify({'error': f'File not found: {file_path}'}), 404
+        
+        if not path.is_file():
+            return jsonify({'error': f'Not a file: {file_path}'}), 400
+        
+        # Read file (limit to 1MB)
+        if path.stat().st_size > 1024 * 1024:
+            with open(path, 'r') as f:
+                content = f.read(1024 * 1024) + '\n... (truncated)'
+        else:
+            with open(path, 'r') as f:
+                content = f.read()
+        
+        return jsonify({
+            'path': str(path),
+            'name': path.name,
+            'size': path.stat().st_size,
+            'content': content
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/transcribe', methods=['POST'])
 def transcribe_audio():
