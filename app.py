@@ -695,16 +695,43 @@ def get_gym_project(project_id):
     
     return jsonify(project)
 
-@app.route('/api/paige/gym/project/<project_id>/task', methods=['POST'])
-def plan_gym_task(project_id):
-    """Plan optimization task"""
-    from model_gym_agent import get_model_gym_agent
+@app.route('/api/transcribe', methods=['POST'])
+def transcribe_audio():
+    """Transcribe audio using Whisper or backend service"""
+    if 'audio' not in request.files:
+        return jsonify({'error': 'No audio file provided'}), 400
     
-    data = request.get_json()
-    opt_type = data.get('type')
-    config = data.get('config', {})
+    audio_file = request.files['audio']
     
-    agent = get_model_gym_agent()
-    task = agent.plan_task(project_id, opt_type, config)
-    
-    return jsonify(task)
+    try:
+        # Try to use local Whisper if available, otherwise fallback
+        try:
+            import whisper
+            import tempfile
+            import os
+            
+            # Save temp file
+            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
+                audio_file.save(tmp.name)
+                temp_path = tmp.name
+            
+            # Transcribe
+            model = whisper.load_model("base")  # small, medium, large available
+            result = model.transcribe(temp_path)
+            
+            # Cleanup
+            os.remove(temp_path)
+            
+            return jsonify({'text': result['text']})
+        except ImportError:
+            # Fallback: Send to backend transcription service
+            return jsonify({
+                'text': '[Audio received - transcription backend not available. Install: pip install openai-whisper]'
+            })
+    except Exception as e:
+        return jsonify({'error': f'Transcription failed: {str(e)}'}), 500
+
+@app.route('/api/audio/to-text', methods=['POST'])
+def audio_to_text_v2():
+    """Alternative audio-to-text endpoint"""
+    return transcribe_audio()

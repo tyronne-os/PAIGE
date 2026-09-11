@@ -1,4 +1,4 @@
-import { Send, Upload, Settings2, Zap, FolderPlus, Folder, File } from 'lucide-react'
+import { Send, Upload, Settings2, Zap, FolderPlus, Folder, File, Mic, MicOff, ChevronDown, ChevronUp } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 interface Message {
@@ -24,7 +24,17 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
   ])
   const [showModelMenu, setShowModelMenu] = useState(false)
   const [showAgentMenu, setShowAgentMenu] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [recordingTime, setRecordingTime] = useState(0)
+  const [collapsedSections, setCollapsedSections] = useState({
+    model: false,
+    agent: false,
+    folders: false
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -72,9 +82,82 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files) {
-      const fileList = Array.from(files).map(f => f.name).join(', ')
+      const fileList = Array.from(files).map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`).join(', ')
       onInputChange(`${input}${input ? ' ' : ''}[Files: ${fileList}]`)
     }
+  }
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mediaRecorder = new MediaRecorder(stream)
+      
+      mediaRecorderRef.current = mediaRecorder
+      audioChunksRef.current = []
+      
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data)
+      }
+      
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' })
+        processAudio(audioBlob)
+        stream.getTracks().forEach(track => track.stop())
+      }
+      
+      mediaRecorder.start()
+      setIsRecording(true)
+      setRecordingTime(0)
+      
+      // Timer
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(t => t + 1)
+      }, 1000)
+    } catch (error) {
+      console.error('Microphone access denied:', error)
+      alert('Microphone access denied. Please check your browser permissions.')
+    }
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current)
+      }
+    }
+  }
+
+  const processAudio = async (audioBlob: Blob) => {
+    try {
+      // Send to backend for speech-to-text
+      const formData = new FormData()
+      formData.append('audio', audioBlob, 'recording.wav')
+      
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        onInputChange(`${input}${input ? ' ' : ''}${data.text}`)
+      } else {
+        console.error('Transcription failed')
+        alert('Speech-to-text failed. Try again.')
+      }
+    } catch (error) {
+      console.error('Transcription error:', error)
+      alert('Could not process audio. Make sure backend is running.')
+    }
+  }
+
+  const toggleSection = (section: 'model' | 'agent' | 'folders') => {
+    setCollapsedSections({
+      ...collapsedSections,
+      [section]: !collapsedSections[section]
+    })
   }
 
   const currentModel = models.find(m => m.id === selectedModel)
@@ -115,171 +198,230 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
 
       {/* Composer Area - SMALLER */}
       <div className="border-t border-slate-700 bg-slate-900 p-3 space-y-2">
-        {/* Context & Controls Row */}
-        <div className="flex items-center gap-2 px-3 py-1 bg-slate-800 rounded-lg border border-slate-700 flex-wrap">
-          {/* Model Selector */}
-          <div className="relative">
-            <button
-              onClick={() => setShowModelMenu(!showModelMenu)}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-green-700 hover:bg-green-600 text-white text-xs font-medium transition border border-green-500"
-              title="Current model: Click to change"
-            >
-              <span>{currentModel?.icon}</span>
-              <span className="truncate max-w-[120px]">{currentModel?.name}</span>
-              <Settings2 size={12} className="opacity-70" />
-            </button>
-            {showModelMenu && (
-              <div className="absolute top-full mt-1 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[280px]">
-                {models.map((model: any) => (
-                  <button
-                    key={model.id}
-                    onClick={() => {
-                      setSelectedModel(model.id)
-                      setShowModelMenu(false)
-                    }}
-                    className={`w-full text-left px-3 py-1 text-xs transition border-b border-slate-700 last:border-b-0 ${
-                      selectedModel === model.id
-                        ? 'bg-green-600 text-white'
-                        : 'text-slate-200 hover:bg-slate-800'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <span>{model.icon}</span>
-                        <span className="font-medium">{model.name}</span>
-                      </div>
-                      {selectedModel === model.id && <span className="text-green-300">✓</span>}
-                    </div>
-                    <div className="text-xs text-slate-400 mt-0.5 ml-5">
-                      {model.source === 'local' ? `⚡ ${model.speed} | 💾 ${model.vram}` : `${model.source} API`}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Agent Selector */}
-          <div className="relative">
-            <button
-              onClick={() => setShowAgentMenu(!showAgentMenu)}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition"
-            >
-              <span>{currentAgent?.icon}</span>
-              <span className="truncate max-w-[100px]">{currentAgent?.name}</span>
-              <Settings2 size={12} className="opacity-50" />
-            </button>
-            {showAgentMenu && (
-              <div className="absolute top-full mt-1 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[200px]">
-                {agents.map(agent => (
-                  <button
-                    key={agent.id}
-                    onClick={() => {
-                      setSelectedAgent(agent.id)
-                      setShowAgentMenu(false)
-                    }}
-                    className={`w-full text-left px-3 py-1 text-xs transition ${
-                      selectedAgent === agent.id
-                        ? 'bg-blue-600 text-white'
-                        : 'text-slate-200 hover:bg-slate-800'
-                    }`}
-                  >
-                    {agent.icon} {agent.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Autopilot Toggle */}
+        {/* Context & Controls - COLLAPSIBLE */}
+        <div className="bg-slate-800 rounded-lg border border-slate-700">
           <button
-            onClick={() => setAutopilot(!autopilot)}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium transition ${
-              autopilot
-                ? 'bg-green-600 hover:bg-green-700 text-white'
-                : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
-            }`}
+            onClick={() => toggleSection('model')}
+            className="w-full flex items-center justify-between px-3 py-2 hover:bg-slate-700 transition rounded-t-lg"
           >
-            <Zap size={12} />
-            {autopilot ? 'ON' : 'OFF'}
+            <span className="text-sm font-semibold text-slate-300">🎙️ Model & Input</span>
+            {collapsedSections.model ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
           </button>
-
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          {/* Upload Button */}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition"
-          >
-            <Upload size={12} />
-            Upload
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </div>
-
-        {/* Folders Panel - LARGER */}
-        <div className="flex-1 px-4 py-3 bg-slate-800 rounded-lg border border-slate-700 overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-slate-300">📁 PROJECT CONTEXT</span>
-            <button
-              onClick={addFolder}
-              className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-slate-200 transition"
-              title="Add folder"
-            >
-              <FolderPlus size={16} />
-            </button>
-          </div>
-
-          <div className="space-y-2 flex-1 overflow-y-auto">
-            {folders.map(folder => (
-              <div key={folder.id}>
-                <div className="flex items-center gap-1 group">
-                  <button
-                    onClick={() => toggleFolder(folder.id)}
-                    className="p-0.5 hover:bg-slate-700 rounded transition text-sm"
-                  >
-                    {folder.expanded ? '▼' : '▶'}
-                  </button>
-                  <Folder size={16} className="text-yellow-400" />
-                  <input
-                    type="text"
-                    value={folder.name}
-                    readOnly
-                    className="flex-1 text-sm text-slate-300 bg-transparent hover:bg-slate-700/50 px-1 rounded truncate"
-                  />
-                  <button
-                    onClick={() => deleteFolder(folder.id)}
-                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-900/50 rounded text-red-400 transition text-sm"
-                  >
-                    ✕
-                  </button>
-                </div>
-                {folder.expanded && (
-                  <div className="ml-6 text-sm text-slate-400 py-2 space-y-1">
-                    <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
-                      <File size={14} />
-                      <span>crane-model.py</span>
-                    </div>
-                    <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
-                      <File size={14} />
-                      <span>config.json</span>
-                    </div>
-                    <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
-                      <File size={14} />
-                      <span>requirements.txt</span>
-                    </div>
+          
+          {!collapsedSections.model && (
+            <div className="border-t border-slate-700 px-3 py-2 flex items-center gap-2 flex-wrap">
+              {/* Model Selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowModelMenu(!showModelMenu)}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-green-700 hover:bg-green-600 text-white text-xs font-medium transition border border-green-500"
+                  title="Current model: Click to change"
+                >
+                  <span>{currentModel?.icon}</span>
+                  <span className="truncate max-w-[120px]">{currentModel?.name}</span>
+                  <Settings2 size={12} className="opacity-70" />
+                </button>
+                {showModelMenu && (
+                  <div className="absolute top-full mt-1 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[280px]">
+                    {models.map((model: any) => (
+                      <button
+                        key={model.id}
+                        onClick={() => {
+                          setSelectedModel(model.id)
+                          setShowModelMenu(false)
+                        }}
+                        className={`w-full text-left px-3 py-1 text-xs transition border-b border-slate-700 last:border-b-0 ${
+                          selectedModel === model.id
+                            ? 'bg-green-600 text-white'
+                            : 'text-slate-200 hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            <span>{model.icon}</span>
+                            <span className="font-medium">{model.name}</span>
+                          </div>
+                          {selectedModel === model.id && <span className="text-green-300">✓</span>}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-0.5 ml-5">
+                          {model.source === 'local' ? `⚡ ${model.speed} | 💾 ${model.vram}` : `${model.source} API`}
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+
+              {/* Mic Button - DICTATION */}
+              <button
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium transition ${
+                  isRecording
+                    ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse'
+                    : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                }`}
+                title={isRecording ? `Recording... ${recordingTime}s` : 'Click to record audio'}
+              >
+                {isRecording ? (
+                  <>
+                    <MicOff size={12} />
+                    <span>{recordingTime}s</span>
+                  </>
+                ) : (
+                  <Mic size={12} />
+                )}
+              </button>
+
+              {/* Upload Button - Multi-file */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium transition"
+                title="Upload audio, video, documents, images..."
+              >
+                <Upload size={12} />
+                Upload
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".wav,.mp3,.m4a,.webm,.mp4,.mov,.avi,.pdf,.docx,.txt,.png,.jpg,.jpeg,.gif,.webp"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* Autopilot Toggle */}
+              <button
+                onClick={() => setAutopilot(!autopilot)}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium transition ${
+                  autopilot
+                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                }`}
+              >
+                <Zap size={12} />
+                {autopilot ? 'ON' : 'OFF'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Agent Selector - COLLAPSIBLE */}
+        <div className="bg-slate-800 rounded-lg border border-slate-700">
+          <button
+            onClick={() => toggleSection('agent')}
+            className="w-full flex items-center justify-between px-3 py-2 hover:bg-slate-700 transition rounded-t-lg"
+          >
+            <span className="text-sm font-semibold text-slate-300">🤖 Agent</span>
+            {collapsedSections.agent ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+          </button>
+
+          {!collapsedSections.agent && (
+            <div className="border-t border-slate-700 px-3 py-2">
+              <div className="relative">
+                <button
+                  onClick={() => setShowAgentMenu(!showAgentMenu)}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-600 hover:bg-slate-500 text-slate-200 text-xs font-medium transition w-full"
+                >
+                  <span>{currentAgent?.icon}</span>
+                  <span className="truncate">{currentAgent?.name}</span>
+                  <Settings2 size={12} className="opacity-50" />
+                </button>
+                {showAgentMenu && (
+                  <div className="absolute top-full mt-1 left-0 right-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20">
+                    {agents.map(agent => (
+                      <button
+                        key={agent.id}
+                        onClick={() => {
+                          setSelectedAgent(agent.id)
+                          setShowAgentMenu(false)
+                        }}
+                        className={`w-full text-left px-3 py-1 text-xs transition ${
+                          selectedAgent === agent.id
+                            ? 'bg-blue-600 text-white'
+                            : 'text-slate-200 hover:bg-slate-800'
+                        }`}
+                      >
+                        {agent.icon} {agent.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Folders Panel - LARGER & COLLAPSIBLE */}
+        <div className="flex-1 bg-slate-800 rounded-lg border border-slate-700 overflow-hidden flex flex-col">
+          <button
+            onClick={() => toggleSection('folders')}
+            className="flex items-center justify-between px-3 py-2 hover:bg-slate-700 transition"
+          >
+            <span className="text-sm font-semibold text-slate-300">📁 PROJECT CONTEXT</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  addFolder()
+                }}
+                className="p-1 hover:bg-slate-600 rounded text-slate-400 hover:text-slate-200 transition"
+                title="Add folder"
+              >
+                <FolderPlus size={16} />
+              </button>
+              {collapsedSections.folders ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            </div>
+          </button>
+
+          {!collapsedSections.folders && (
+            <div className="border-t border-slate-700 p-3 space-y-2 flex-1 overflow-y-auto">
+              {folders.map(folder => (
+                <div key={folder.id}>
+                  <div className="flex items-center gap-1 group">
+                    <button
+                      onClick={() => toggleFolder(folder.id)}
+                      className="p-0.5 hover:bg-slate-700 rounded transition text-sm"
+                    >
+                      {folder.expanded ? '▼' : '▶'}
+                    </button>
+                    <Folder size={16} className="text-yellow-400" />
+                    <input
+                      type="text"
+                      value={folder.name}
+                      readOnly
+                      className="flex-1 text-sm text-slate-300 bg-transparent hover:bg-slate-700/50 px-1 rounded truncate"
+                    />
+                    <button
+                      onClick={() => deleteFolder(folder.id)}
+                      className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-900/50 rounded text-red-400 transition text-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {folder.expanded && (
+                    <div className="ml-6 text-sm text-slate-400 py-2 space-y-1">
+                      <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
+                        <File size={14} />
+                        <span>crane-model.py</span>
+                      </div>
+                      <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
+                        <File size={14} />
+                        <span>config.json</span>
+                      </div>
+                      <div className="flex items-center gap-2 hover:text-slate-300 cursor-pointer">
+                        <File size={14} />
+                        <span>requirements.txt</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Input Area */}
