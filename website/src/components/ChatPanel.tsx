@@ -16,7 +16,7 @@ interface ChatPanelProps {
 
 function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [selectedModel, setSelectedModel] = useState('gpt-4')
+  const [selectedModel, setSelectedModel] = useState('sd-2-1-base')
   const [selectedAgent, setSelectedAgent] = useState('general')
   const [autopilot, setAutopilot] = useState(false)
   const [folders, setFolders] = useState<Array<{ id: string; name: string; expanded: boolean }>>([
@@ -35,10 +35,11 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
   }, [messages])
 
   const models = [
-    { id: 'gpt-4', name: 'GPT-4', icon: '🧠' },
-    { id: 'gpt-3.5', name: 'GPT-3.5 Turbo', icon: '⚡' },
-    { id: 'claude', name: 'Claude 3', icon: '🎯' },
-    { id: 'mistral', name: 'Mistral-7B', icon: '🚀' },
+    { id: 'sd-2-1-base', name: 'Stable Diffusion 2.1-base (Fastest)', icon: '⚡', source: 'local', speed: '20s', vram: '4GB' },
+    { id: 'dall-e-mini', name: 'DALL-E mini', icon: '🎨', source: 'local', speed: '15s', vram: '2GB' },
+    { id: 'gpt-4', name: 'GPT-4', icon: '🧠', source: 'openai', speed: 'streaming', vram: '-' },
+    { id: 'claude', name: 'Claude 3', icon: '🎯', source: 'anthropic', speed: 'streaming', vram: '-' },
+    { id: 'mistral', name: 'Mistral-7B', icon: '🚀', source: 'local', speed: '8s', vram: '7GB' },
   ]
 
   const agents = [
@@ -127,28 +128,38 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
           <div className="relative">
             <button
               onClick={() => setShowModelMenu(!showModelMenu)}
-              className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium transition"
+              className="flex items-center gap-2 px-3 py-1 rounded-lg bg-green-700 hover:bg-green-600 text-white text-sm font-medium transition border border-green-500"
+              title="Current model: Click to change"
             >
               <span>{currentModel?.icon}</span>
-              <span className="truncate max-w-[120px]">{currentModel?.name}</span>
-              <Settings2 size={14} className="opacity-50" />
+              <span className="truncate max-w-[140px]">{currentModel?.name}</span>
+              <Settings2 size={14} className="opacity-70" />
             </button>
             {showModelMenu && (
-              <div className="absolute top-full mt-2 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[200px]">
-                {models.map(model => (
+              <div className="absolute top-full mt-2 left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-20 min-w-[280px]">
+                {models.map((model: any) => (
                   <button
                     key={model.id}
                     onClick={() => {
                       setSelectedModel(model.id)
                       setShowModelMenu(false)
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm transition ${
+                    className={`w-full text-left px-4 py-2 text-sm transition border-b border-slate-700 last:border-b-0 ${
                       selectedModel === model.id
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-green-600 text-white'
                         : 'text-slate-200 hover:bg-slate-800'
                     }`}
                   >
-                    {model.icon} {model.name}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span>{model.icon}</span>
+                        <span className="font-medium">{model.name}</span>
+                      </div>
+                      {selectedModel === model.id && <span className="text-green-300">✓</span>}
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1 ml-6">
+                      {model.source === 'local' ? `⚡ ${model.speed} | 💾 ${model.vram}` : `${model.source} API`}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -294,13 +305,16 @@ function ChatPanel({ messages, onSendMessage, input, onInputChange }: ChatPanelP
         </div>
 
         {/* Status Bar */}
-        <div className="flex items-center justify-between px-4 py-2 text-xs text-slate-400 bg-slate-800/50 rounded-lg border border-slate-700/50">
-          <div className="flex gap-4">
+        <div className="flex items-center justify-between px-4 py-2 text-xs text-slate-300 bg-gradient-to-r from-slate-800 to-slate-900 rounded-lg border border-slate-700/50">
+          <div className="flex gap-4 items-center">
             <span>🤖 {currentAgent?.name}</span>
-            <span>💬 {currentModel?.name}</span>
-            {autopilot && <span className="text-green-400">⚡ Autopilot Active</span>}
+            <span className="flex items-center gap-1 bg-green-900/50 px-2 py-1 rounded border border-green-700">
+              <span>💬 Active Model:</span>
+              <span className="font-semibold text-green-300">{currentModel?.name}</span>
+            </span>
+            {autopilot && <span className="text-green-400 animate-pulse">⚡ Autopilot Active</span>}
           </div>
-          <span>{folders.length} folder{folders.length !== 1 ? 's' : ''} loaded</span>
+          <span className="text-slate-500">{folders.length} folder{folders.length !== 1 ? 's' : ''}</span>
         </div>
       </div>
     </div>
