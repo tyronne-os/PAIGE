@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState, ReactNode } from 'react'
 import { MessageCircle, Settings, Plus, Menu, Send, Palette } from 'lucide-react'
 import Sidebar from './components/Sidebar'
 import ChatPanel from './components/ChatPanel'
@@ -9,6 +9,24 @@ import './App.css'
 
 type AppMode = 'chat' | 'project' | 'design' | 'gym'
 type ProjectMode = 'split' | 'pipeline' | 'eden'
+
+class ErrorBoundary extends React.Component<{ children: ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div style={{ padding: '2rem', color: 'white' }}>Error loading component. Check console.</div>
+    }
+    return this.props.children
+  }
+}
 
 function App() {
   const [appMode, setAppMode] = useState<AppMode>('chat')
@@ -134,27 +152,29 @@ function App() {
         </div>
 
         {/* Content Area */}
-        {appMode === 'chat' ? (
-          <ChatPanel
-            messages={messages}
-            onSendMessage={handleSendMessage}
-            input={input}
-            onInputChange={setInput}
-          />
-        ) : appMode === 'project' ? (
-          <ProjectPreview
-            mode={projectMode}
-            onModeChange={setProjectMode}
-          />
-        ) : appMode === 'design' ? (
-          <div className="flex-1 p-4 overflow-auto">
-            <DesignEasel />
-          </div>
-        ) : (
-          <div className="flex-1 overflow-auto">
-            <ModelGym />
-          </div>
-        )}
+        <ErrorBoundary>
+          {appMode === 'chat' ? (
+            <ChatPanel
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              input={input}
+              onInputChange={setInput}
+            />
+          ) : appMode === 'project' ? (
+            <ProjectPreview
+              mode={projectMode}
+              onModeChange={setProjectMode}
+            />
+          ) : appMode === 'design' ? (
+            <div className="flex-1 p-4 overflow-auto">
+              <DesignEasel />
+            </div>
+          ) : (
+            <div className="flex-1 overflow-auto">
+              <ModelGym />
+            </div>
+          )}
+        </ErrorBoundary>
       </main>
     </div>
   )
