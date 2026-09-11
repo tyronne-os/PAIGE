@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Settings, ChevronRight, Copy, Zap, Layers } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Settings, ChevronRight, Copy, Zap, Layers, ExternalLink } from 'lucide-react'
 import SplitPlayground from './features/SplitPlayground'
 import PipelineCanvas from './features/PipelineCanvas'
 import EdenDiffusion from './features/EdenDiffusion'
@@ -15,6 +15,19 @@ interface ProjectPreviewProps {
 function ProjectPreview({ mode, onModeChange }: ProjectPreviewProps) {
   const [showSettings, setShowSettings] = useState(false)
   const [hoveredControl, setHoveredControl] = useState<string | null>(null)
+  const [currentProject, setCurrentProject] = useState<any>(null)
+
+  useEffect(() => {
+    // Load current project from localStorage
+    const project = localStorage.getItem('paige-current-project')
+    if (project) {
+      try {
+        setCurrentProject(JSON.parse(project))
+      } catch (e) {
+        console.error('Error loading project:', e)
+      }
+    }
+  }, [])
 
   const features = [
     {
@@ -42,6 +55,23 @@ function ProjectPreview({ mode, onModeChange }: ProjectPreviewProps) {
 
   return (
     <div className="relative w-full h-full flex flex-col bg-gradient-to-b from-slate-950 to-slate-900 overflow-hidden">
+      {/* Project Header */}
+      {currentProject && (
+        <div className="px-6 py-3 border-b border-slate-700 bg-slate-900/80 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <div>
+              <p className="text-xs text-slate-400">Current Project</p>
+              <p className="text-sm font-semibold text-white">{currentProject.repo}</p>
+              <p className="text-xs text-slate-500">{currentProject.mode === 'new' ? 'New Project' : 'Loaded Project'}</p>
+            </div>
+          </div>
+          <a href={currentProject.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs text-slate-300 transition">
+            <ExternalLink size={14} /> Open on GitHub
+          </a>
+        </div>
+      )}
+      
       {/* Main Content Area */}
       <div className="flex-1 flex items-center justify-center p-6 overflow-hidden">
         {mode === 'split' && <SplitPlayground />}

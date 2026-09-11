@@ -12,12 +12,13 @@ interface Repo {
   updated_at: string
 }
 
-const GitHubBrowser: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
+const GitHubBrowser: React.FC<{ onClose?: () => void; onSelectRepo?: (repo: Repo, mode: 'new' | 'existing') => void }> = ({ onClose, onSelectRepo }) => {
   const [repos, setRepos] = useState<Repo[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [error, setError] = useState('')
   const [authenticated, setAuthenticated] = useState(false)
+  const [selectedRepo, setSelectedRepo] = useState<Repo | null>(null)
 
   useEffect(() => {
     const token = localStorage.getItem('github_token')
@@ -88,6 +89,14 @@ const GitHubBrowser: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
 
   const filtered = repos.filter(r => r.name.toLowerCase().includes(search.toLowerCase()))
 
+  const handleSelectRepo = (repo: Repo, mode: 'new' | 'existing') => {
+    if (onSelectRepo) {
+      onSelectRepo(repo, mode)
+    }
+    setSelectedRepo(null)
+    onClose?.()
+  }
+
   return (
     <div className="github-browser">
       <div className="gb-header">
@@ -135,9 +144,30 @@ const GitHubBrowser: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   {repo.language && <span className="language">{repo.language}</span>}
                   <span className="updated">{new Date(repo.updated_at).toLocaleDateString()}</span>
                 </div>
-                <a href={repo.url} target="_blank" rel="noopener noreferrer" className="repo-link">
-                  <ExternalLink size={14} /> Open on GitHub
-                </a>
+                <div className="repo-actions">
+                  <button 
+                    className="action-btn new-project"
+                    onClick={() => handleSelectRepo(repo, 'new')}
+                    title="Start new project with this repo"
+                  >
+                    + New Project
+                  </button>
+                  <button 
+                    className="action-btn load-project"
+                    onClick={() => handleSelectRepo(repo, 'existing')}
+                    title="Load existing files from this repo"
+                  >
+                    📂 Load Project
+                  </button>
+                  <a 
+                    href={repo.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="repo-link"
+                  >
+                    <ExternalLink size={14} /> GitHub
+                  </a>
+                </div>
               </div>
             ))}
           </div>

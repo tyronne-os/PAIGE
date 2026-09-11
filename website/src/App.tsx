@@ -149,6 +149,24 @@ function App() {
     }
   }
 
+  const handleRepoSelect = (repo: any, mode: 'new' | 'existing') => {
+    // Save selected repo to localStorage for Project mode
+    const projectData = {
+      repo: repo.name,
+      url: repo.url,
+      mode: mode,
+      loadedAt: new Date().toISOString()
+    }
+    localStorage.setItem('paige-current-project', JSON.stringify(projectData))
+    
+    // Switch to Project mode
+    setAppMode('project')
+    setShowGitHub(false)
+    
+    // Show notification
+    alert(`${mode === 'new' ? 'Creating' : 'Loading'} project: ${repo.name}`)
+  }
+
   const handleSendMessage = () => {
     if (input.trim()) {
       const newMessage = {
@@ -266,7 +284,7 @@ function App() {
         {showGitHub && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-slate-950 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-auto">
-              <GitHubBrowser onClose={() => setShowGitHub(false)} />
+              <GitHubBrowser onClose={() => setShowGitHub(false)} onSelectRepo={handleRepoSelect} />
             </div>
           </div>
         )}
