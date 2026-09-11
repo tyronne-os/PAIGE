@@ -1,0 +1,103 @@
+{
+  "id": "avatar-2d-local",
+  "name": "2D Avatar (Local - Morning Project)",
+  "description": "Deploy a local 2D animated avatar in PAIGE bottom-left with settings panel. Uses Qwen (1B-32B) running on your GPU. No network required.",
+  "category": "avatar",
+  "difficulty": "intermediate",
+  "estimatedTime": "7 hours",
+  "tags": ["avatar", "local-gpu", "qwen", "2d-animation", "morning-project"],
+  "requirements": {
+    "gpu": "8GB+ VRAM",
+    "models": ["Qwen-1B", "Qwen-7B", "Qwen-14B", "Qwen-32B"],
+    "dependencies": ["PAIGE-1.0", "FloatingPaige"],
+    "network": "none"
+  },
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Create Avatar Container Component",
+      "duration": "1.5 hours",
+      "file": "website/src/components/LocalAvatar.tsx",
+      "tasks": [
+        "Create bottom-left positioned component",
+        "Add video stream container",
+        "Build control buttons (play/settings)",
+        "Implement size selector logic"
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Avatar Settings Panel",
+      "duration": "1 hour",
+      "file": "website/src/components/AvatarSettings.tsx",
+      "tasks": [
+        "Model selector: 1B/7B/14B/32B",
+        "Size selector: Small/Medium/Large",
+        "Voice selector integration",
+        "GPU memory display"
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Backend Video Streaming",
+      "duration": "2 hours",
+      "file": "src/avatar_streaming.py",
+      "tasks": [
+        "MJPEG stream endpoint",
+        "Portrait animation loop",
+        "Frame encoding (H.264)",
+        "Stream optimization"
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Frontend Integration",
+      "duration": "1.5 hours",
+      "file": "website/src/App.tsx",
+      "tasks": [
+        "Import LocalAvatar component",
+        "Position in bottom-left",
+        "Handle model switching",
+        "Persistent storage (localStorage)"
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Test & Deploy",
+      "duration": "1 hour",
+      "tasks": [
+        "Verify video stream smooth",
+        "Test model switching",
+        "Monitor GPU memory",
+        "Check all 3 sizes work",
+        "Deploy to localhost:8002"
+      ]
+    }
+  ],
+  "successCriteria": [
+    "Avatar appears in bottom-left corner",
+    "Settings panel allows model/size changes",
+    "Video stream displays smoothly (30fps+)",
+    "GPU memory stays under 10GB",
+    "Model switching without crash",
+    "Portrait image displays clearly",
+    "Audio playback syncs with avatar"
+  ],
+  "files": {
+    "frontend": [
+      "website/src/components/LocalAvatar.tsx",
+      "website/src/components/AvatarSettings.tsx"
+    ],
+    "backend": [
+      "src/avatar_streaming.py"
+    ]
+  },
+  "nextSkill": "avatar-full-yc-demo",
+  "notes": [
+    "If no animation available, show static portrait with audio playback",
+    "Video stream can be simple MJPEG (multipart frames)",
+    "Model switching requires ~30 second reload time",
+    "Store config in localStorage for persistence",
+    "This is foundation for SKILL 2 (full YC demo)"
+  ]
+}
