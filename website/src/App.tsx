@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react'
+import React, { useState, ReactNode, useEffect } from 'react'
 import { MessageCircle, Settings, Plus, Menu, Send, Palette } from 'lucide-react'
 import Sidebar from './components/Sidebar'
 import ChatPanel from './components/ChatPanel'
@@ -6,6 +6,8 @@ import ProjectPreview from './components/ProjectPreview'
 import DesignEasel from './components/DesignEasel'
 import ModelGym from './components/ModelGym'
 import ThemeVault from './components/ThemeVault'
+import GitHubBrowser from './components/GitHubBrowser'
+import RecentProjects from './components/RecentProjects'
 import './App.css'
 
 type AppMode = 'chat' | 'project' | 'design' | 'gym'
@@ -34,12 +36,33 @@ function App() {
   const [projectMode, setProjectMode] = useState<ProjectMode>('split')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
+  const [showGitHub, setShowGitHub] = useState(false)
+  const [showRecentProjects, setShowRecentProjects] = useState(true)
   const [currentSession, setCurrentSession] = useState<string>('session-1')
   const [sessions, setSessions] = useState([
     { id: 'session-1', title: 'New Chat', created: new Date() },
   ])
   const [messages, setMessages] = useState<Array<{ id: string; role: string; content: string }>>([])
   const [input, setInput] = useState('')
+
+  // Load GitHub token on mount
+  useEffect(() => {
+    const token = localStorage.getItem('github_token')
+    if (!token) {
+      // Prompt for GitHub token on first load
+      const newToken = prompt('Enter your GitHub Personal Access Token (leave blank to skip):')
+      if (newToken) {
+        localStorage.setItem('github_token', newToken)
+      }
+    }
+    
+    // Show recent projects on first load
+    const hasSeenRecentProjects = localStorage.getItem('paige-recent-projects-shown')
+    if (!hasSeenRecentProjects) {
+      setShowRecentProjects(true)
+      localStorage.setItem('paige-recent-projects-shown', 'true')
+    }
+  }, [])
 
   const handleNewSession = () => {
     const newId = `session-${Date.now()}`
@@ -148,8 +171,16 @@ function App() {
           </div>
           <div className="flex items-center gap-3">
             <button 
+              onClick={() => setShowGitHub(!showGitHub)}
+              className="p-2 hover:bg-slate-800 rounded-lg transition"
+              title="GitHub Repositories"
+            >
+              <Github size={20} />
+            </button>
+            <button 
               onClick={() => setShowSettings(!showSettings)}
               className="p-2 hover:bg-slate-800 rounded-lg transition"
+              title="Settings"
             >
               <Settings size={20} />
             </button>
@@ -161,6 +192,24 @@ function App() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-slate-950 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-auto">
               <ThemeVault onClose={() => setShowSettings(false)} />
+            </div>
+          </div>
+        )}
+
+        {/* GitHub Modal */}
+        {showGitHub && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-slate-950 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-auto">
+              <GitHubBrowser onClose={() => setShowGitHub(false)} />
+            </div>
+          </div>
+        )}
+
+        {/* Recent Projects Modal (On Load) */}
+        {showRecentProjects && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-slate-950 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-auto">
+              <RecentProjects onClose={() => setShowRecentProjects(false)} />
             </div>
           </div>
         )}
