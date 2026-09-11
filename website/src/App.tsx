@@ -13,19 +13,55 @@ import './App.css'
 type AppMode = 'chat' | 'project' | 'design' | 'gym'
 type ProjectMode = 'split' | 'pipeline' | 'eden'
 
-class ErrorBoundary extends React.Component<{ children: ReactNode }, { hasError: boolean }> {
+class ErrorBoundary extends React.Component<{ children: ReactNode }, { hasError: boolean; error: string }> {
   constructor(props: { children: ReactNode }) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, error: '' }
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error: error.message }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('ErrorBoundary caught:', error, errorInfo)
   }
 
   render() {
     if (this.state.hasError) {
-      return <div style={{ padding: '2rem', color: 'white' }}>Error loading component. Check console.</div>
+      return (
+        <div style={{ 
+          padding: '2rem', 
+          color: 'white',
+          backgroundColor: '#0f172a',
+          fontFamily: 'monospace',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center'
+        }}>
+          <h2 style={{ marginBottom: '1rem', color: '#ff7f50' }}>⚠️ Component Error</h2>
+          <p style={{ color: '#94a3b8', marginBottom: '1rem' }}>{this.state.error}</p>
+          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Check browser console (F12) for details</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              marginTop: '1rem',
+              padding: '0.5rem 1rem',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              maxWidth: '150px'
+            }}
+          >
+            Reload Page
+          </button>
+        </div>
+      )
     }
     return this.props.children
   }
@@ -181,7 +217,7 @@ function App() {
               className="p-2 hover:bg-slate-800 rounded-lg transition"
               title="GitHub Repositories"
             >
-              <Github size={20} />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c2.6-.4 5.6-2 5.6-7 0-1.25-.756-2.3-2-2.972A4.9 4.9 0 0 0 15.666 3.75c-.748-1-.747-2.592-.191-2.766a10.7 10.7 0 0 0-5.523 1.14c-.335.118-.8 0-1.022-.217A4.882 4.882 0 0 0 7.97 1.05c-1.318 0-2.592.878-3.414 2.372C3.4 5.exposition 3 7.268 3 9.589c0 5 3 6.6 5.6 7a4.821 4.821 0 0 0-1 3.5v4"></path><circle cx="9" cy="18" r="1"></circle></svg>
             </button>
             <button 
               onClick={() => setShowSettings(!showSettings)}
@@ -249,4 +285,10 @@ function App() {
   )
 }
 
-export default App
+export default function AppWrapper() {
+  return (
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  )
+}
